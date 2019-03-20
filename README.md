@@ -1,2 +1,1 @@
-# securesimulation
-Secure Simulation for WSWiN
+# Secure Simulation - WSWiN
