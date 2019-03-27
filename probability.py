@@ -13,3 +13,20 @@ import numpy as np
 import geopy.distance
 from shapely.geometry import Point, shape, LinearRing, LineString
 from shapely.geometry.polygon import Polygon
+
+
+def main():
+	
+	sumoBinary = "/usr/share/sumo/bin/sumo-gui"
+	sumoCmd = [sumoBinary, "-c", "spider.sumocfg"]
+
+	traci.start(sumoCmd)
+
+if __name__ == '__main__':
+	if 'SUMO_HOME' in os.environ:
+		tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
+		sys.path.append(tools)
+		import traci
+		main()
+	else:   
+		sys.exit("please declare environment variable 'SUMO_HOME'")
