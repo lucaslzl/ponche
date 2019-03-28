@@ -18,26 +18,38 @@ from shapely.geometry.polygon import Polygon
 def main():
 	
 	sumoBinary = "/usr/share/sumo/bin/sumo-gui"
-	sumoCmd = [sumoBinary, "-c", "spider.sumocfg"]
+	sumoCmd = [sumoBinary, "-c", "sumo/spider.sumocfg"]
+
+	vehID = '0'
 
 	traci.start(sumoCmd)
+	traci.vehicle.subscribe(vehID, (tc.VAR_ROAD_ID, tc.VAR_LANEPOSITION))
 
-	step = 0
-	while step < 1000:
+	for step in range(1000):
 		traci.simulationStep()
+
+		print(traci.vehicle.getSubscriptionResults(vehID))
 		
 		if traci.inductionloop.getLastStepVehicleNumber("0") > 0:
 			traci.trafficlight.setRedYellowGreenState("0", "GrGr")
 		
-		step += 1
-
 	traci.close()
+
+'''
+Help Codes
+
+x, y = traci.vehicle.getPosition(vehID)
+lon, lat = traci.simulation.convertGeo(x, y)
+x2, y2 = traci.simulation.convertGeo(lon, lat, fromGeo=True)
+
+'''
 
 
 if 'SUMO_HOME' in os.environ:
 	tools = os.path.join(os.environ['SUMO_HOME'], 'tools')
 	sys.path.append(tools)
 	import traci
+	import traci.constants as tc
 	main()
 else:
 	sys.exit("please declare environment variable 'SUMO_HOME'")

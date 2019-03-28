@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on Qua 27 Mar 2019 11:47:58 -03 by Eclipse SUMO GUI Version 1.1.0
+<!-- generated on Qui 28 Mar 2019 15:47:58 -03 by Eclipse SUMO GUI Version 1.1.0
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
 
     <input>
-        <net-file value="netspider.net.xml"/>
-        <route-files value="tripss.trips.xml"/>
+        <net-file value="sumo/netspider.net.xml"/>
+        <route-files value="sumo/tripss.trips.xml"/>
     </input>
 
     <output>
-        <emission-output value="spider.emission.xml"/>
+        <emission-output value="sumo/spider.emission.xml"/>
     </output>
 
     <time>
@@ -18,7 +18,7 @@
     </time>
 
     <traci_server>
-        <remote-port value="59175"/>
+        <remote-port value="58469"/>
     </traci_server>
 
 </configuration>
