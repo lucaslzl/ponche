@@ -1,1 +1,1 @@
-# Secure Simulation - WSWiN
+# Secure Simulation - MSWiN
