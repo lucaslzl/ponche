@@ -51,17 +51,41 @@ def read_all_data():
 df = read_all_data()
 #print(df.head())
 
-# Export
-df.groupby(['month', 'type']).count()['export'].to_csv('density.csv')
+df_month_type = df.groupby(['month', 'type']).count()
 
-# Plot
-plt.figure()
+#print(min(df_month_type['export']))
+#print(max(df_month_type['export']))
 
-#print(df.groupby(['month', 'type']).count().head())
+crimes = df.groupby('type').all().index
 
-filtered = df.groupby(['month', 'type']).count()
+for c in crimes:
 
-plt.xticks(range(len(filtered)), ['' for i in range(len(filtered))])
-filtered.plot(y='export')
+	df_crime = df.query("type == '%s'" % c)
 
-plt.show()
+	filtered = df_crime.groupby(['month']).count()
+
+	plt.figure()
+
+	months = ['', 'Jan.', 'Feb.', 'Mar.', 'Apr.', 'May', 'Jun.', 
+				'Jul.', 'Aug.', 'Sep.', 'Oct.', 'Nov.', 'Dec.']
+
+	filtered['export'].plot(legend=None, title=c, style='.:')
+	
+	plt.xlabel('Months')
+	plt.ylabel('Quantity of Crimes')
+	plt.xticks(range(13), months, rotation=50)
+	plt.yticks(range(0, 7000, 500), [x for x in range(0, 7000, 500)])
+
+	if not os.path.exists('density'):
+		os.makedirs('density')
+
+	plt.savefig('density/'+ c + '.pdf', bbox_inches="tight", format='pdf')
+
+	plt.clf()
+
+	# Export
+	#df.groupby(['month']).count()['export'].to_csv('density.csv')
+
+	#print(df.groupby(['month', 'type']).count().head())
+
+	#input(';')
