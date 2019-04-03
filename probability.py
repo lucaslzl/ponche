@@ -28,10 +28,14 @@ def main():
 	for step in range(1000):
 		traci.simulationStep()
 
-		print(traci.vehicle.getSubscriptionResults(vehID))
+		print(traci.vehicle.getPosition(vehID))
+		x, y = traci.vehicle.getPosition(vehID)
+		print(traci.simulation.convertGeo(x, y))
+
+		#print(traci.vehicle.getSubscriptionResults(vehID))
 		
-		if traci.inductionloop.getLastStepVehicleNumber("0") > 0:
-			traci.trafficlight.setRedYellowGreenState("0", "GrGr")
+		#if traci.inductionloop.getLastStepVehicleNumber("0") > 0:
+		#	traci.trafficlight.setRedYellowGreenState("0", "GrGr")
 		
 	traci.close()
 
