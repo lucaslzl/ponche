@@ -21,7 +21,7 @@ class Clustering:
 	def clusterize(self, data, ep=0.01):
 
 		data_formated = self.encode(data.copy())
-		clustering = hdbscan.HDBSCAN(min_cluster_size=3).fit_predict(data_formated)
+		clustering = DBSCAN(eps=ep, min_samples=3).fit_predict(data_formated)
 		data['cluster'] = clustering
 		
 		return data.sort_values('cluster')
