@@ -1,10 +1,13 @@
 import pandas as pd
 import numpy as np
 import os, sys
+from os import listdir
 import warnings
 
+import json
+
 from scipy.signal import find_peaks
-import hdbscan
+from sklearn.cluster import DBSCAN
 
 class Clustering:
 
@@ -72,9 +75,9 @@ class Util:
 
 		return clusters
 
-	def read_data(self, day):
+	def read_data(self, folder, file):
 
-		data_file = open('data/' + day + '/crimes.csv', 'r')
+		data_file = open(folder + file, 'r')
 
 		crime_list = []
 
@@ -96,23 +99,27 @@ class Util:
 
 		return self.remove_invalid_coord(df)
 
-	def write_clusters(self, clusters, month, day, start, crime):
+	def read_data_folder(self, day):
+
+		dfs = {}
+
+		folder = 'data/' + day + '/'
+		for file in listdir(folder):
+			dfs[file] = self.read_data(folder, file)
+
+		return dfs
+
+	def write_clusters(self, clusters, day):
 
 		if not os.path.exists('clusters'):
 			os.makedirs('clusters')
 
-		output_file = open('clusters/{0}_{1}_{2}_{3}_clusters.txt'.format(self.MONTHS[month], str(day), crime, self.format_digits(str(start))), 'w')
-
-		for cluster in clusters:
-			for point in cluster:
-				output_file.write(str(point[0]) + ' ' + str(point[1]) + '; ')
-
-			output_file.write('\n')
-		output_file.close()
+		with open("clusters/" + str(day) + '.json', "w") as write_file:
+			json.dump(clusters, write_file, indent=4)
 
 ######################################################################
 
-class TimeMinutesClustering:
+class TimeWindow:
 
 	def __init__(self):
 		self.u = Util()
@@ -228,58 +235,88 @@ class TimeMinutesClustering:
 
 		return clusters
 
-	def clusterize(self, month_crimes, clustering, month, day):
+	def find_window(self, data, clustering):
 
-		crimes = month_crimes.groupby('type').all().index
+		dict_data = {}
 
-		for crime in crimes:
-			
-			crimes_filtered = month_crimes.query("type == '%s'" % crime)
-				
-			window_scores = self.calculate_score(crimes_filtered)
+		window_scores = self.calculate_score(data)
 
-			peaks = find_peaks(window_scores, distance=3)[0].tolist()
+		peaks = find_peaks(window_scores, distance=3)[0].tolist()
 
-			if len(peaks) > 0:
-			
-				window = self.identify_window(window_scores, peaks)
+		if len(peaks) > 0:
+		
+			window = self.identify_window(window_scores, peaks)
 
-				if len(window) > 0:
+			if len(window) > 0:
 
-					iterwindow = iter(window)
-					next(iterwindow)
-					last_window = window[0]
-					for iw in iterwindow:
+				iterwindow = iter(window)
+				next(iterwindow)
+				last_window = window[0]
+				for iw in iterwindow:
 
-						crimes_window = self.get_window(last_window, iw, crimes_filtered)
+					data_window = self.get_window(last_window, iw, data)
 
-						cluster_crime = None
-						if len(crimes_window) >= 3:
-							cluster_crime = clustering.clusterize(crimes_window).query('cluster != -1')
+					cluster_data = None
+					if len(data_window) >= 3:
+						cluster_data = clustering.clusterize(data_window).query('cluster != -1')
 
-						self.u.write_clusters(self.u.format_clusters(cluster_crime), month, day, iw, crime)
+					dict_data[str(iw)] = self.u.format_clusters(cluster_data)
 
-						last_window = iw
+					last_window = iw
+
+		return dict_data
+
+	def clusterize(self, month_data, clustering, key):
+
+		windows_clusters = {}
+
+		if 'crimes' in key:
+
+			crimes = month_data.groupby('type').all().index
+
+			for crime in crimes:
+				crimes_filtered = month_data.query("type == '%s'" % crime)
+				dict_data = self.find_window(crimes_filtered, clustering)
+				windows_clusters[crime] = dict_data
+
+		else:
+			dict_data = self.find_window(month_data, clustering)
+			windows_clusters['unkown'] = dict_data
+
+		return windows_clusters
+
 
 def main():
 
 	u = Util()
-	tmc = TimeMinutesClustering()
+	tw = TimeWindow()
 	clustering = Clustering()
 
 	for day in ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']:
 
 		print('### ' + day)
+		output_data = {}
+		dfs = u.read_data_folder(day)
 
-		day_crimes = u.read_data(day)
+		for key in dfs:
+
+			print('#' + key)
+			day_data = dfs[key]
+			key_data = {}
 				
-		for month in range(1, 13):
+			for month in range(1, 13):
 
-			print('#' + u.MONTHS[month])
+				#print('#' + u.MONTHS[month])
 
-			month_crimes = day_crimes['2018-' + str(month)]
+				month_data = day_data['2018-' + str(u.format_digits(month))]
 
-			tmc.clusterize(month_crimes, clustering, month, day)
+				clusters = tw.clusterize(month_data, clustering, key)
+
+				key_data[u.MONTHS[month]] = clusters
+
+			output_data[key.split('.')[0]] = key_data
+
+		u.write_clusters(output_data, day)
 
 if __name__ == '__main__':
 	warnings.simplefilter("ignore")
