@@ -49,7 +49,8 @@ class Util:
 	}
 
 	def remove_invalid_coord(self, df): #[-90; 90]
-		return df.query('lat >= -90 & lat <= 90').query('lon >= -90 & lat <= 90')
+		#return df.query('lat >= -90 & lat <= 90').query('lon >= -90 & lat <= 90')
+		return df.query('lat != 0 & lon != 0')
 
 	def format_digits(self, number):
 
@@ -293,7 +294,7 @@ def main():
 	clustering = Clustering()
 
 	for day in ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']:
-
+	
 		print('### ' + day)
 		output_data = {}
 		dfs = u.read_data_folder(day)
@@ -303,7 +304,7 @@ def main():
 			print('#' + key)
 			day_data = dfs[key]
 			key_data = {}
-				
+
 			for month in range(1, 13):
 
 				#print('#' + u.MONTHS[month])
