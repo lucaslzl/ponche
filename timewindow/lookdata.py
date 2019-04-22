@@ -6,11 +6,12 @@ import matplotlib.pyplot as plt
 
 
 def remove_invalid_coord(df): #[-90; 90]
-	return df.query('lat >= -90 & lat <= 90').query('lon >= -90 & lat <= 90')
+	#return df.query('lat >= -90 & lat <= 90').query('lon >= -90 & lat <= 90')
+	return df.query('lat != 0 & lon != 0')
 
 def read_data(day):
 
-	data_file = open('data/' + day + '/crimes.csv', 'r')
+	data_file = open('data/' + day + '/crimes_2018_austin.csv', 'r')
 
 	crime_list = []
 
@@ -58,34 +59,34 @@ df_month_type = df.groupby(['month', 'type']).count()
 
 crimes = df.groupby('type').all().index
 
-for c in crimes:
+# for c in crimes:
 
-	df_crime = df.query("type == '%s'" % c)
+	# df_crime = df.query("type == '%s'" % c)
 
-	filtered = df_crime.groupby(['month']).count()
+	# filtered = df_crime.groupby(['month']).count()
 
-	plt.figure()
+	# plt.figure()
 
-	months = ['', 'Jan.', 'Feb.', 'Mar.', 'Apr.', 'May', 'Jun.', 
-				'Jul.', 'Aug.', 'Sep.', 'Oct.', 'Nov.', 'Dec.']
+	# months = ['', 'Jan.', 'Feb.', 'Mar.', 'Apr.', 'May', 'Jun.', 
+	# 			'Jul.', 'Aug.', 'Sep.', 'Oct.', 'Nov.', 'Dec.']
 
-	filtered['export'].plot(legend=None, title=c, style='.:')
+	# filtered['export'].plot(legend=None, title=c, style='.:')
 	
-	plt.xlabel('Months')
-	plt.ylabel('Quantity of Crimes')
-	plt.xticks(range(13), months, rotation=50)
-	plt.yticks(range(0, 7000, 500), [x for x in range(0, 7000, 500)])
+	# plt.xlabel('Months')
+	# plt.ylabel('Quantity of Crimes')
+	# plt.xticks(range(13), months, rotation=50)
+	# plt.yticks(range(0, 7000, 500), [x for x in range(0, 7000, 500)])
 
-	if not os.path.exists('density'):
-		os.makedirs('density')
+	# if not os.path.exists('density'):
+	# 	os.makedirs('density')
 
-	plt.savefig('density/'+ c + '.pdf', bbox_inches="tight", format='pdf')
+	# plt.savefig('density/'+ c + '.pdf', bbox_inches="tight", format='pdf')
 
-	plt.clf()
+	# plt.clf()
 
-	# Export
-	#df.groupby(['month']).count()['export'].to_csv('density.csv')
+# Export
+df.groupby(['month', 'type']).count()['export'].to_csv('density_austin.csv')
 
-	#print(df.groupby(['month', 'type']).count().head())
+#print(df.groupby(['month', 'type']).count().head())
 
-	#input(';')
+#input(';')

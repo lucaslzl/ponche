@@ -122,6 +122,13 @@ class Util:
 
 class TimeWindow:
 
+	crimes_chicago = ['ASSAULT', 'BATTERY', 'BURGLARY', 'CRIMINAL DAMAGE', 
+					 'DECEPTIVE PRACTICE', 'MOTOR VEHICLE THEFT', 'ROBBERY',
+					 'THEFT']
+	crimes_austin = ['ASSAULT', 'AUTO', 'BURGLARY', 'CRIMINAL', 'FAMILY',
+					'POSS', 'THEFT']
+
+
 	def __init__(self):
 		self.u = Util()
 
@@ -276,10 +283,10 @@ class TimeWindow:
 			crimes = month_data.groupby('type').all().index
 
 			for crime in crimes:
-				crimes_filtered = month_data.query("type == '%s'" % crime)
-				dict_data = self.find_window(crimes_filtered, clustering)
-				windows_clusters[crime] = dict_data
-
+				if crime in self.crimes_chicago or crime in self.crimes_austin:
+					crimes_filtered = month_data.query("type == '%s'" % crime)
+					dict_data = self.find_window(crimes_filtered, clustering)
+					windows_clusters[crime] = dict_data
 		else:
 			dict_data = self.find_window(month_data, clustering)
 			windows_clusters['unkown'] = dict_data

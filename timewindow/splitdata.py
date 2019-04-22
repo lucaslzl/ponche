@@ -30,6 +30,9 @@ class SplitData:
 			item['Longitude'] = float(line[2])
 			item['Type'] = line[3]
 
+			if 'austin' in file and 'crime' in file:
+				item['Type'] = line[3].split()[0]
+
 			crime_list.append(item)
 		data_file.close()
 
