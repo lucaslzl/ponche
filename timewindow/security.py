@@ -8,7 +8,7 @@ class Security:
 
 		for day in ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']:
 			with open("clusters/" + str(day) + '.json', "r") as file:
-				data[day] = load_json(file)
+				data[day] = json.load(file)
 		return data
 
 
@@ -27,3 +27,8 @@ class Security:
 		crashy = self.calculate_crashy(geos)
 
 		return security + crashy
+
+if __name__ == '__main__':
+	
+	res = Security().load_clusters()
+	print(res['friday']['crimes_2018_chicago']['March']['THEFT'])
