@@ -53,4 +53,4 @@ def reroute_vehicles(graph, safety_index_list, p):
             logging.debug("Calculating optimal path for pair (%s, %s)" % (source, destination))
 
             shortest_path = nx.dijkstra_path(graph, source, destination, "weight")     
-	        traci.vehicle.setRoute(vehicle, shortest_path)
+            traci.vehicle.setRoute(vehicle, shortest_path)
