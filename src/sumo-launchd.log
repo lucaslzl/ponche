@@ -1,0 +1,5 @@
+DEBUG:root:Logging to sumo-launchd.log
+DEBUG:root:Finding unused port
+DEBUG:root:Port 52547 was found
+DEBUG:root:Starting SUMO as a server
+DEBUG:root:Building road graph
