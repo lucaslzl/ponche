@@ -25,6 +25,15 @@ def update_traffic_on_roads(graph): #, safety_file_name):
                 
     return graph
 
+# x, y = traci.vehicle.getPosition(vehID)
+# print(traci.simulation.convertGeo(x, y))
+def update_safety_on_roads(graph, safety):
+
+    for road in graph.nodes_iter():
+
+        logging.debug("Road: " + str(road))
+        break
+
 def building_route(s, t, r, pred_list, safety_index_list, G):
     route = []
     route.append(t)

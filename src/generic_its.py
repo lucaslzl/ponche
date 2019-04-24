@@ -47,7 +47,7 @@ def run(network, begin, end, interval, route_log, replication, p):
         if step % 60 == 0:
             logging.debug("Updating travel time on roads at simulation time %d" % step)
             road_network_graph = traffic_mannager.update_traffic_on_roads(road_network_graph)
-            
+            traffic_mannager.update_safety_on_roads(road_network_graph, None)
     
         if step >= travel_time_cycle_begin and travel_time_cycle_begin <= end and step%interval == 0:
             road_network_graph = traffic_mannager.update_traffic_on_roads(road_network_graph)
@@ -94,13 +94,13 @@ def main():
 
     parser = OptionParser()
     parser.add_option("-c", "--command", dest="command", default="sumo", help="The command used to run SUMO [default: %default]", metavar="COMMAND")
-    parser.add_option("-s", "--scenario", dest="scenario", default="../sumo/austin.sumo.cfg", help="A SUMO configuration file [default: %default]", metavar="FILE")
-    parser.add_option("-n", "--network", dest="network", default="../sumo/austin.net.xml", help="A SUMO network definition file [default: %default]", metavar="FILE")    
+    parser.add_option("-s", "--scenario", dest="scenario", default="../sumo/chicago.sumo.cfg", help="A SUMO configuration file [default: %default]", metavar="FILE")
+    parser.add_option("-n", "--network", dest="network", default="../sumo/chicago.net.xml", help="A SUMO network definition file [default: %default]", metavar="FILE")    
     parser.add_option("-b", "--begin", dest="begin", type="int", default=1800, action="store", help="The simulation time (s) at which the re-routing begins [default: %default]", metavar="BEGIN")
     parser.add_option("-e", "--end", dest="end", type="int", default=7200, action="store", help="The simulation time (s) at which the re-routing ends [default: %default]", metavar="END")
     parser.add_option("-i", "--interval", dest="interval", type="int", default=600, action="store", help="The interval (s) of classification [default: %default]", metavar="INTERVAL")
     parser.add_option("-o", "--output", dest="output", default="reroute.xml", help="The XML file at which the output must be written [default: %default]", metavar="FILE")
-    parser.add_option("-l", "--logfile", dest="logfile", default=os.path.join(tempfile.gettempdir(), "sumo-launchd.log"), help="log messages to logfile [default: %default]", metavar="FILE")
+    parser.add_option("-l", "--logfile", dest="logfile", default="sumo-launchd.log", help="log messages to logfile [default: %default]", metavar="FILE")
     parser.add_option("-m", "--summary", dest="summary", default="summary.xml", help="The XML file at which the summary output must be written [default: %default]", metavar="FILE")
     parser.add_option("-r", "--route-log", dest="route_log", default="route-log.txt", help="Log of the entire route of each vehicle [default: %default]", metavar="FILE")
     parser.add_option("-t", "--replication", dest="replication", default="1", help="number of replications [default: %default]", metavar="REPLICATION")
