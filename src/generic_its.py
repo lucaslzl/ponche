@@ -21,14 +21,21 @@ import log_mannager
 import traffic_mannager
 import traci
 
+import os,sys,inspect
+current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parent_dir = os.path.dirname(current_dir)
+sys.path.insert(0, parent_dir)
+from timewindow.contextual import Contextual
+
               
 def run(network, begin, end, interval, route_log, replication, p):
+
     logging.debug("Building road graph")         
     road_network_graph = graph_mannager.build_road_graph(network)
-    logging.debug("Finding all simple paths")
     
-    route_list = {}
-    # buffered_paths = {}
+    count = 0
+    logging.debug("Reading contextual data")
+    contextual = Contextual()
     
     logging.debug("Running simulation now")    
     step = 1
@@ -38,7 +45,7 @@ def run(network, begin, end, interval, route_log, replication, p):
 
     while step == 1 or traci.simulation.getMinExpectedNumber() > 0:
         logging.debug("Minimum expected number of vehicles: %d" % traci.simulation.getMinExpectedNumber())
-        traci.simulationStep()
+        traci.simulationStep('monday')
 
         # log_densidade_speed(step) 
 
@@ -47,15 +54,18 @@ def run(network, begin, end, interval, route_log, replication, p):
         if step % 60 == 0:
             logging.debug("Updating travel time on roads at simulation time %d" % step)
             road_network_graph = traffic_mannager.update_traffic_on_roads(road_network_graph)
-            traffic_mannager.update_safety_on_roads(road_network_graph, None)
+            traffic_mannager.update_context_on_roads(road_network_graph, contextual)
     
         if step >= travel_time_cycle_begin and travel_time_cycle_begin <= end and step%interval == 0:
             road_network_graph = traffic_mannager.update_traffic_on_roads(road_network_graph)
             logging.debug("Updating travel time on roads at simulation time %d" % step)
-            
-            traffic_mannager.reroute_vehicles(road_network_graph, safety_index_list, p)           
+
+            safety_index_list = None
+            count = traffic_mannager.reroute_vehicles(road_network_graph, safety_index_list, p, count)           
 
         step += 1
+
+    logging.debug('########################### COUNT: ' + str(count))
     
     time.sleep(10)
     logging.debug("Simulation finished")
