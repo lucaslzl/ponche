@@ -53,11 +53,12 @@ def run(network, begin, end, interval, route_log, replication, p):
 
         if step % 60 == 0:
             logging.debug("Updating travel time on roads at simulation time %d" % step)
-            road_network_graph = traffic_mannager.update_traffic_on_roads(road_network_graph)
-            traffic_mannager.update_context_on_roads(road_network_graph, contextual)
+            #road_network_graph = traffic_mannager.update_traffic_on_roads(road_network_graph)
+            road_network_graph = traffic_mannager.update_context_on_roads(road_network_graph, contextual)
     
         if step >= travel_time_cycle_begin and travel_time_cycle_begin <= end and step%interval == 0:
-            road_network_graph = traffic_mannager.update_traffic_on_roads(road_network_graph)
+            #road_network_graph = traffic_mannager.update_traffic_on_roads(road_network_graph)
+            road_network_graph = traffic_mannager.update_context_on_roads(road_network_graph, contextual)
             logging.debug("Updating travel time on roads at simulation time %d" % step)
 
             safety_index_list = None

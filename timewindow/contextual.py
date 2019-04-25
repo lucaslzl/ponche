@@ -2,10 +2,9 @@ import json
 import pandas as pd
 import numpy as np
 
-from functools import reduce
-import geopy.distance
-from shapely.geometry import Point, shape, LinearRing, LineString
-from shapely.geometry.polygon import Polygon
+from shapely.geometry import Point
+
+from clusteroperation import ClusterOperation
 
 class Contextual:
 
@@ -15,63 +14,64 @@ class Contextual:
 			return json.load(file)
 
 
-	def __init__(self, day):
-		self.clusters = self.load_clusters(day)
+	def __init__(self, city='chicago', month='January', day='sunday'):
+		
+		self.city = city
+		self.month = month
+		self.day = day
+		
+		self.all_clusters = self.load_clusters(day)
+		self.co = ClusterOperation()
 
 
-	def convex_hull_graham(self, points):
-		TURN_LEFT, TURN_RIGHT, TURN_NONE = (1, -1, 0)
-
-		def cmp(a, b):
-			return int((a > b)) - int((a < b))
-
-		def turn(p, q, r):
-			return cmp((q[0] - p[0])*(r[1] - p[1]) - (r[0] - p[0])*(q[1] - p[1]), 0)
-
-		def _keep_left(hull, r):
-			while len(hull) > 1 and turn(hull[-2], hull[-1], r) != TURN_LEFT:
-				hull.pop()
-			if not len(hull) or hull[-1] != r:
-				hull.append(r)
-			return hull
-
-		points = sorted(points)
-		l = reduce(_keep_left, points, [])
-		u = reduce(_keep_left, reversed(points), [])
-		return l.extend(u[i] for i in range(1, len(u) - 1)) or l
+	def parzen_window(self, x, center, stan_deviation):
+		return (1/(np.sqrt(2*np.pi*stan_deviation))) * (np.exp(-(((x-center)**2)/2)*(stan_deviation**2)))
 
 
-	def calculate_unsafety(self, start, end):
+	def calculate_score(self, start, end, key, hour):
 		
 		point_1 = Point(*start)
 		point_2 = Point(*end)
 		line = [point_1, point_2]
+		score = [0]
 
-		clusters = None
+		# Without type
+		if str(self.all_clusters[key][self.month][0]).isnumeric():
 
-		for c in clusters[hour]:
+			clusters = self.all_clusters[key][self.month][hour]
+			cluster_max_density = self.co.calculate_density(clusters)
+			for cluster in self.co.get_clusters_info(clusters):
+				center_dist, ext_dist, density = self.co.find_centroid_distance(cluster, line, cluster_max_density)
+				if center_dist != -1:
+					score.append(self.parzen_window(center_dist, ext_dist, density))
 
-			centroid_point = Point(*c['centroid'])
-			p_near = self.u.get_nearest_point_from_line(line, centroid_point)
-			point_center_dist = geopy.distance.distance(p_near, c['centroid']).km
+		# With type
+		else:
 
-			if Point(*p_near).within(c['cluster_poly']):
-				point_exterior = self.u.get_nearest_point(c['cluster_poly'], Point(*p_near))
-				point_exterior_dist = geopy.distance.distance(p_near, point_exterior).km
+			for types in self.all_clusters[key][self.month]:
 
-				overall_prob.append(self.u.parzen_window(point_center_dist, point_center_dist + point_exterior_dist, self.u.get_normalized(cluster_density, c)))
+				clusters = self.all_clusters[key][self.month][types][hour]
+				for cluster in self.co.get_clusters_info(clusters):
+					center_dist, ext_dist, density = self.co.find_centroid_distance(cluster, line)
+					if center_dist != -1:
+						score.append(self.parzen_window(center_dist, ext_dist, density))
+
+		return max(score)
 
 
-	def calculate_crashy(self, start, end):
-		pass
+	def trade_off(self, traffic, start, end, hour, weight=[2, 0.5]):
 
+		scores = []
+		valid_keys = [x for x in self.all_clusters if city in x]
+		for key in valid_keys:
+			scores.append(self.calculate_score(start, end, key, hour))
 
-	def trade_off(self, traffic, start, end):
+		overall_score = traffic
+		for indx, score in enumerate(scores):
+			overall_score += score*weight[indx]
 
-		security = self.calculate_unsafety(start, end)
-		crashy = self.calculate_crashy(start, end)
-
-		return (traffic + security*2 + crashy*0.5)
+		return overall_score
+		
 
 if __name__ == '__main__':
 	

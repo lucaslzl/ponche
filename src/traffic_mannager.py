@@ -37,10 +37,12 @@ def update_context_on_roads(graph, contextual):
         end = traci.simulation.convertGeo(*lane_coords[1])
         
         # Trade-off
-        weight = contextual.trade_off(traffic, start, end)
+        weight = contextual.trade_off(traffic, 00, start, end)
 
         for successor_road in graph.successors(road):
             graph.adj[road][successor_road]["weight"] = (graph.adj[road][successor_road]["weight"] + weight) / 2.0
+
+    return graph
 
 
 def building_route(s, t, r, pred_list, safety_index_list, G):
@@ -70,7 +72,7 @@ def reroute_vehicles(graph, safety_index_list, p, count):
 
             logging.debug("Calculating optimal path for pair (%s, %s)" % (source, destination))
 
-            shortest_path = nx.dijkstra_path(graph, source, destination, "safety")
+            shortest_path = nx.dijkstra_path(graph, source, destination, "weight")
             try:     
                 traci.vehicle.setRoute(vehicle, shortest_path)
             except Exception, e:
