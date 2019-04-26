@@ -1,6 +1,7 @@
 import json
 import pandas as pd
 import numpy as np
+import os
 
 from shapely.geometry import Point
 
@@ -10,7 +11,7 @@ class Contextual:
 
 
 	def load_clusters(self, day):
-		with open("clusters/" + str(day) + '.json', "r") as file:
+		with open(str(os.path.dirname(os.path.abspath(__file__)))+"/clusters/" + str(day) + '.json', "r") as file:
 			return json.load(file)
 
 
@@ -62,7 +63,7 @@ class Contextual:
 	def trade_off(self, traffic, start, end, hour, weight=[2, 0.5]):
 
 		scores = []
-		valid_keys = [x for x in self.all_clusters if city in x]
+		valid_keys = [x for x in self.all_clusters if self.city in x]
 		for key in valid_keys:
 			scores.append(self.calculate_score(start, end, key, hour))
 

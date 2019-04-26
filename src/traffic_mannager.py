@@ -59,7 +59,7 @@ def building_route(s, t, r, pred_list, safety_index_list, G):
     return route
 
 
-def reroute_vehicles(graph, safety_index_list, p, count):
+def reroute_vehicles(graph, p, count):
 
 
     for vehicle in traci.vehicle.getIDList():

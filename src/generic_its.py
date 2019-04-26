@@ -45,7 +45,7 @@ def run(network, begin, end, interval, route_log, replication, p):
 
     while step == 1 or traci.simulation.getMinExpectedNumber() > 0:
         logging.debug("Minimum expected number of vehicles: %d" % traci.simulation.getMinExpectedNumber())
-        traci.simulationStep('monday')
+        traci.simulationStep()
 
         # log_densidade_speed(step) 
 
@@ -61,8 +61,7 @@ def run(network, begin, end, interval, route_log, replication, p):
             road_network_graph = traffic_mannager.update_context_on_roads(road_network_graph, contextual)
             logging.debug("Updating travel time on roads at simulation time %d" % step)
 
-            safety_index_list = None
-            count = traffic_mannager.reroute_vehicles(road_network_graph, safety_index_list, p, count)           
+            count = traffic_mannager.reroute_vehicles(road_network_graph, p, count)           
 
         step += 1
 
