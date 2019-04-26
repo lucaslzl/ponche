@@ -1,4 +1,8 @@
+import numpy as np
+import pandas as pd
+import sys
 from functools import reduce
+
 import geopy.distance
 from shapely.geometry import Point, shape, LinearRing, LineString
 from shapely.geometry.polygon import Polygon
@@ -48,14 +52,14 @@ class ClusterOperation:
 		clusters_info = []
 		for counter, cluster in enumerate(clusters):
 
-			x = np.mean(cluster[::,0])
-			y = np.mean(cluster[::,1])
+			if len(cluster) > 0:
 
-			centroid = (x, y)
+				x = np.mean([x[0] for x in cluster])
+				y = np.mean([y[1] for y in cluster])
 
-			len_cluster = len(cluster)
+				centroid = (x, y)
 
-			if cluster.tolist().count([cluster[0][0], cluster[0][1]]) != len(cluster.tolist()):			
+				len_cluster = len(cluster)			
 
 				cluster_poly = self.filter_cluster_points(cluster)
 
@@ -73,11 +77,11 @@ class ClusterOperation:
 
 		for cluster in clusters:
 
-			if cluster['len'] > maxi:
-				maxi = cluster['len']
+			if len(cluster) > maxi:
+				maxi = len(cluster)
 		
-			if cluster['len'] < mini:
-				mini = cluster['len']
+			if len(cluster) < mini:
+				mini = len(cluster)
 
 		return mini, maxi
 
@@ -87,7 +91,7 @@ class ClusterOperation:
 		mini, maxi = sys.maxsize, 0
 
 		for ch in clusters:
-			mini, maxi = self.find_cluster_minmax(clusters[ch], mini, maxi)
+			mini, maxi = self.find_cluster_minmax(clusters, mini, maxi)
 
 		return (mini, maxi)
 
@@ -121,7 +125,7 @@ class ClusterOperation:
 
 		center_dist, ext_dist = 0, 0
 
-		centroid_point = Point(*cluster['centroid'])
+		centroid_point = Point(cluster['centroid'][0], cluster['centroid'][1])
 		p_near = self.get_nearest_point_from_line(line, centroid_point)
 		center_dist = geopy.distance.distance(p_near, cluster['centroid']).km
 

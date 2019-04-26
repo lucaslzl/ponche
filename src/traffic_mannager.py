@@ -22,6 +22,10 @@ def update_traffic_on_roads(graph): #, safety_file_name):
     return graph
 
 
+def invert_coords(coord):
+    return (coord[1], coord[0])
+
+
 def update_context_on_roads(graph, contextual):
 
     for road in graph.nodes():
@@ -35,9 +39,12 @@ def update_context_on_roads(graph, contextual):
         lane_coords = traci.lane.getShape(str(road) + "_0")
         start = traci.simulation.convertGeo(*lane_coords[0])
         end = traci.simulation.convertGeo(*lane_coords[1])
+
+        start = invert_coords(start)
+        end = invert_coords(end)
         
         # Trade-off
-        weight = contextual.trade_off(traffic, 00, start, end)
+        weight = contextual.trade_off(traffic, start, end, str(00))
 
         for successor_road in graph.successors(road):
             graph.adj[road][successor_road]["weight"] = (graph.adj[road][successor_road]["weight"] + weight) / 2.0

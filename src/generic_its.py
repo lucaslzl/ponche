@@ -65,7 +65,7 @@ def run(network, begin, end, interval, route_log, replication, p):
 
         step += 1
 
-    logging.debug('########################### COUNT: ' + str(count))
+    logging.debug('##### Route fail count: ' + str(count))
     
     time.sleep(10)
     logging.debug("Simulation finished")

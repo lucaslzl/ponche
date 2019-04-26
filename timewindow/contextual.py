@@ -31,15 +31,15 @@ class Contextual:
 
 	def calculate_score(self, start, end, key, hour):
 		
-		point_1 = Point(*start)
-		point_2 = Point(*end)
+		point_1 = Point(start[0], start[1])
+		point_2 = Point(end[0], end[1])
 		line = [point_1, point_2]
 		score = [0]
 
 		# Without type
-		if str(self.all_clusters[key][self.month][0]).isnumeric():
+		if self.all_clusters[key][self.month].keys()[0] == 'unknown':
 
-			clusters = self.all_clusters[key][self.month][hour]
+			clusters = self.all_clusters[key][self.month]['unknown'][hour]
 			cluster_max_density = self.co.calculate_density(clusters)
 			for cluster in self.co.get_clusters_info(clusters):
 				center_dist, ext_dist, density = self.co.find_centroid_distance(cluster, line, cluster_max_density)
@@ -52,8 +52,9 @@ class Contextual:
 			for types in self.all_clusters[key][self.month]:
 
 				clusters = self.all_clusters[key][self.month][types][hour]
+				cluster_max_density = self.co.calculate_density(clusters)
 				for cluster in self.co.get_clusters_info(clusters):
-					center_dist, ext_dist, density = self.co.find_centroid_distance(cluster, line)
+					center_dist, ext_dist, density = self.co.find_centroid_distance(cluster, line, cluster_max_density)
 					if center_dist != -1:
 						score.append(self.parzen_window(center_dist, ext_dist, density))
 
@@ -68,6 +69,9 @@ class Contextual:
 			scores.append(self.calculate_score(start, end, key, hour))
 
 		overall_score = traffic
+		if overall_score < 0:
+			overall_score = 0
+			
 		for indx, score in enumerate(scores):
 			overall_score += score*weight[indx]
 

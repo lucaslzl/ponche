@@ -268,7 +268,7 @@ class TimeWindow:
 					if len(data_window) >= 3:
 						cluster_data = clustering.clusterize(data_window).query('cluster != -1')
 
-					dict_data[str(iw)] = self.u.format_clusters(cluster_data)
+					dict_data[str(last_window)] = self.u.format_clusters(cluster_data)
 
 					last_window = iw
 
