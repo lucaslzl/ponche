@@ -26,7 +26,7 @@ def invert_coords(coord):
     return (coord[1], coord[0])
 
 
-def update_context_on_roads(graph, contextual):
+def update_context_on_roads(graph, contextual, step):
 
     for road in graph.nodes():
 
@@ -44,7 +44,8 @@ def update_context_on_roads(graph, contextual):
         end = invert_coords(end)
         
         # Trade-off
-        weight = contextual.trade_off(traffic, start, end, str(00))
+        step_time = step // 100
+        weight = contextual.trade_off(traffic, start, end, step_time)
 
         for successor_road in graph.successors(road):
             graph.adj[road][successor_road]["weight"] = (graph.adj[road][successor_road]["weight"] + weight) / 2.0

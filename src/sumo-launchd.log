@@ -1,6 +1,6 @@
 DEBUG:root:Logging to sumo-launchd.log
 DEBUG:root:Finding unused port
-DEBUG:root:Port 48861 was found
+DEBUG:root:Port 47903 was found
 DEBUG:root:Starting SUMO as a server
 DEBUG:root:Building road graph
 DEBUG:root:Reading contextual data
@@ -7396,7 +7396,7 @@ DEBUG:root:Minimum expected number of vehicles: 1
 DEBUG:root:Simulation time 3102
 DEBUG:root:Minimum expected number of vehicles: 1
 DEBUG:root:Simulation time 3103
-DEBUG:root:########################### COUNT: 1000
+DEBUG:root:##### Route fail count: 1000
 DEBUG:root:Simulation finished
 ERROR:root:Terminating SUMO
 None

@@ -29,7 +29,20 @@ class Contextual:
 		return (1/(np.sqrt(2*np.pi*stan_deviation))) * (np.exp(-(((x-center)**2)/2)*(stan_deviation**2)))
 
 
-	def calculate_score(self, start, end, key, hour):
+	def find_last_window(self, windows, step_time):
+
+		windows.sort()
+		last_window = 0
+		for window in windows:
+			if window > step_time:
+				return str(last_window)
+
+			last_window = window
+
+		return str(last_window)
+
+
+	def calculate_score(self, start, end, key, step_time):
 		
 		point_1 = Point(start[0], start[1])
 		point_2 = Point(end[0], end[1])
@@ -39,7 +52,10 @@ class Contextual:
 		# Without type
 		if self.all_clusters[key][self.month].keys()[0] == 'unknown':
 
-			clusters = self.all_clusters[key][self.month]['unknown'][hour]
+			windows = list(self.all_clusters[key][self.month]['unknown'].keys())
+			last_window = self.find_last_window(windows, step_time)
+
+			clusters = self.all_clusters[key][self.month]['unknown'][last_window]
 			cluster_max_density = self.co.calculate_density(clusters)
 			for cluster in self.co.get_clusters_info(clusters):
 				center_dist, ext_dist, density = self.co.find_centroid_distance(cluster, line, cluster_max_density)
@@ -51,7 +67,10 @@ class Contextual:
 
 			for types in self.all_clusters[key][self.month]:
 
-				clusters = self.all_clusters[key][self.month][types][hour]
+				windows = list(self.all_clusters[key][self.month][types].keys())
+				last_window = self.find_last_window(windows, step_time)
+				
+				clusters = self.all_clusters[key][self.month][types][last_window]
 				cluster_max_density = self.co.calculate_density(clusters)
 				for cluster in self.co.get_clusters_info(clusters):
 					center_dist, ext_dist, density = self.co.find_centroid_distance(cluster, line, cluster_max_density)
@@ -61,12 +80,12 @@ class Contextual:
 		return max(score)
 
 
-	def trade_off(self, traffic, start, end, hour, weight=[2, 0.5]):
+	def trade_off(self, traffic, start, end, step_time, weight=[2, 0.5]):
 
 		scores = []
 		valid_keys = [x for x in self.all_clusters if self.city in x]
 		for key in valid_keys:
-			scores.append(self.calculate_score(start, end, key, hour))
+			scores.append(self.calculate_score(start, end, key, step_time))
 
 		overall_score = traffic
 		if overall_score < 0:
