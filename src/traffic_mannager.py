@@ -15,6 +15,8 @@ def update_traffic_on_roads(graph): #, safety_file_name):
 
         dummy_speed = float(max_speed - average_speed) / float(max_speed)
         #dummy_speed = max_speed - average_speed
+        if dummy_speed < 0:
+            dummy_speed = 0
 
         for successor_road in graph.successors(road):
             graph.adj[road][successor_road]["weight"] = (graph.adj[road][successor_road]["weight"] + dummy_speed) / 2.0
@@ -45,7 +47,10 @@ def update_context_on_roads(graph, contextual, step):
         
         # Trade-off
         step_time = step // 100
-        weight = contextual.trade_off(traffic, start, end, step_time)
+        weight = contextual.trade_off(traffic, start, end, step_time, context_weight={'traffic': 1, 'crimes': 1, 'crashes': 1})
+        #weight = contextual.trade_off(traffic, start, end, step_time, context_weight={'traffic': 1, 'crimes': 2, 'crashes': 1})
+        #weight = contextual.trade_off(traffic, start, end, step_time, context_weight={'traffic': 1, 'crimes': 1, 'crashes': 2})
+        #weight = contextual.trade_off(traffic, start, end, step_time, context_weight={'traffic': 2, 'crimes': 1, 'crashes': 1})
 
         for successor_road in graph.successors(road):
             graph.adj[road][successor_road]["weight"] = (graph.adj[road][successor_road]["weight"] + weight) / 2.0
@@ -67,8 +72,7 @@ def building_route(s, t, r, pred_list, safety_index_list, G):
     return route
 
 
-def reroute_vehicles(graph, p, count):
-
+def reroute_vehicles(graph, p, error_count, total_count):
 
     for vehicle in traci.vehicle.getIDList():
         source = traci.vehicle.getRoadID(vehicle)
@@ -79,11 +83,26 @@ def reroute_vehicles(graph, p, count):
         if source != destination:
 
             logging.debug("Calculating optimal path for pair (%s, %s)" % (source, destination))
-
             shortest_path = nx.dijkstra_path(graph, source, destination, "weight")
-            try:     
-                traci.vehicle.setRoute(vehicle, shortest_path)
-            except Exception, e:
-                count+=1
 
-    return count
+            try:
+                total_count+=1
+                traci.vehicle.setRoute(vehicle, shortest_path)
+                # print('\n\n################ DEU CERTO')
+                # print('############## VEHICLE: ' + str(vehicle))
+                # print('############## ROUTE: ' + str(route))
+                # print('############## DIJKSTRA: ' + str(shortest_path))
+                # print('############## ORIGIN: ' + str(source))
+                # print('############## DESTINATION: ' + str(destination) + '\n')
+                # input(';;;;')
+            except Exception, e:
+                error_count+=1
+                # print('\n\n################ DEU ERRADO')
+                # print('############## VEHICLE: ' + str(vehicle))
+                # print('############## ROUTE: ' + str(route))
+                # print('############## DIJKSTRA: ' + str(shortest_path))
+                # print('############## ORIGIN: ' + str(source))
+                # print('############## DESTINATION: ' + str(destination) + '\n')
+                # input(';;;;')
+
+    return error_count, total_count

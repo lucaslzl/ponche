@@ -33,7 +33,7 @@ def run(network, begin, end, interval, route_log, replication, p):
     logging.debug("Building road graph")         
     road_network_graph = graph_mannager.build_road_graph(network)
     
-    count = 0
+    error_count, total_count = 0, 0
     logging.debug("Reading contextual data")
     contextual = Contextual()
     
@@ -47,25 +47,26 @@ def run(network, begin, end, interval, route_log, replication, p):
         logging.debug("Minimum expected number of vehicles: %d" % traci.simulation.getMinExpectedNumber())
         traci.simulationStep()
 
-        # log_densidade_speed(step) 
+        # log_densidade_speed(step)
 
         logging.debug("Simulation time %d" % step)
 
-        if step % 60 == 0:
-            logging.debug("Updating travel time on roads at simulation time %d" % step)
-            #road_network_graph = traffic_mannager.update_traffic_on_roads(road_network_graph)
-            road_network_graph = traffic_mannager.update_context_on_roads(road_network_graph, contextual, step)
+        #if step % 60 == 0:
+        #logging.debug("Updating travel time on roads at simulation time %d" % step)
+        #road_network_graph = traffic_mannager.update_traffic_on_roads(road_network_graph)
+        #road_network_graph = traffic_mannager.update_context_on_roads(road_network_graph, contextual, step)
     
         if step >= travel_time_cycle_begin and travel_time_cycle_begin <= end and step%interval == 0:
             #road_network_graph = traffic_mannager.update_traffic_on_roads(road_network_graph)
             road_network_graph = traffic_mannager.update_context_on_roads(road_network_graph, contextual, step)
             logging.debug("Updating travel time on roads at simulation time %d" % step)
 
-            count = traffic_mannager.reroute_vehicles(road_network_graph, p, count)           
+            error_count, total_count = traffic_mannager.reroute_vehicles(road_network_graph, p, error_count, total_count)           
 
         step += 1
 
-    logging.debug('##### Route fail count: ' + str(count))
+    logging.debug('##### Route total count: ' + str(total_count))
+    logging.debug('##### Route error count: ' + str(error_count))
     
     time.sleep(10)
     logging.debug("Simulation finished")

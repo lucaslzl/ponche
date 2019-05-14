@@ -80,19 +80,19 @@ class Contextual:
 		return max(score)
 
 
-	def trade_off(self, traffic, start, end, step_time, weight=[2, 0.5]):
+	def trade_off(self, traffic, start, end, step_time, context_weight={'traffic': 1, 'crimes': 1.5, 'crashes': 0.5}):
 
 		scores = []
 		valid_keys = [x for x in self.all_clusters if self.city in x]
 		for key in valid_keys:
 			scores.append(self.calculate_score(start, end, key, step_time))
 
-		overall_score = traffic
+		overall_score = traffic*context_weight['traffic']
 		if overall_score < 0:
 			overall_score = 0
 			
 		for indx, score in enumerate(scores):
-			overall_score += score*weight[indx]
+			overall_score += score*context_weight[valid_keys[indx].split('_')[0]]
 
 		return overall_score
 		
