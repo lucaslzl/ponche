@@ -74,7 +74,10 @@ def building_route(s, t, r, pred_list, safety_index_list, G):
 
 def reroute_vehicles(graph, p, error_count, total_count):
 
-    for vehicle in traci.vehicle.getIDList():
+    vehicles = list(set(traci.vehicle.getIDList()))
+    vehicles.sort()
+
+    for vehicle in vehicles:
         source = traci.vehicle.getRoadID(vehicle)
         if source.startswith(":"): continue
         route = traci.vehicle.getRoute(vehicle)
@@ -87,22 +90,9 @@ def reroute_vehicles(graph, p, error_count, total_count):
 
             try:
                 total_count+=1
-                traci.vehicle.setRoute(vehicle, shortest_path)
-                # print('\n\n################ DEU CERTO')
-                # print('############## VEHICLE: ' + str(vehicle))
-                # print('############## ROUTE: ' + str(route))
-                # print('############## DIJKSTRA: ' + str(shortest_path))
-                # print('############## ORIGIN: ' + str(source))
-                # print('############## DESTINATION: ' + str(destination) + '\n')
-                # input(';;;;')
+                #traci.vehicle.setRoute(vehicle, shortest_path)
+                traci.vehicle.rerouteEffort(vehicle)
             except Exception, e:
                 error_count+=1
-                # print('\n\n################ DEU ERRADO')
-                # print('############## VEHICLE: ' + str(vehicle))
-                # print('############## ROUTE: ' + str(route))
-                # print('############## DIJKSTRA: ' + str(shortest_path))
-                # print('############## ORIGIN: ' + str(source))
-                # print('############## DESTINATION: ' + str(destination) + '\n')
-                # input(';;;;')
 
     return error_count, total_count

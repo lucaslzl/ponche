@@ -31,15 +31,5 @@ def build_road_graph(network):
         if source_edge != dest_edge:
             if source_edge.startswith(":") or dest_edge.startswith(":"): continue
             graph.add_edge(source_edge.encode("ascii"), dest_edge.encode("ascii"), id=source_edge, length=edges_length[source_edge], weight=0)
-
-    # # Junctions
-    # for junction_tag in soup.findAll("junction"):
-    #     junc_id = junction_tag["id"]
-    #     lanes = junction_tag['incLanes']
-
-    #     for lane in lanes.split():
-    #         lane = lane.split('_')[0]
-    #         if junc_id.startswith(":") or lane.startswith(":"): continue
-    #         graph.add_edge(junc_id.encode("ascii"), lane.encode("ascii"), weight=0)
-            
+          
     return graph
