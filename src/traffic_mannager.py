@@ -90,8 +90,18 @@ def reroute_vehicles(graph, p, error_count, total_count):
 
             try:
                 total_count+=1
-                #traci.vehicle.setRoute(vehicle, shortest_path)
-                traci.vehicle.rerouteEffort(vehicle)
+                traci.vehicle.setRoute(vehicle, shortest_path)
+                #traci.vehicle.rerouteEffort(vehicle)
+
+                print('\n\n')
+                print(str(source))
+                print(str(destination))
+                print(str(route))
+                print(str(shortest_path))
+                print('\n\n')
+
+                #exit()
+
             except Exception, e:
                 error_count+=1
 
