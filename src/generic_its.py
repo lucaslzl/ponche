@@ -36,6 +36,8 @@ def run(network, begin, end, interval, route_log, replication, p):
     error_count, total_count = 0, 0
     logging.debug("Reading contextual data")
     contextual = Contextual()
+
+    broken_routes = []
     
     logging.debug("Running simulation now")    
     step = 1
@@ -47,32 +49,32 @@ def run(network, begin, end, interval, route_log, replication, p):
         logging.debug("Minimum expected number of vehicles: %d" % traci.simulation.getMinExpectedNumber())
         traci.simulationStep()
 
-        # log_densidade_speed(step)
+        #log_densidade_speed(step)
 
         logging.debug("Simulation time %d" % step)
 
-        #if step % 60 == 0:
-        #logging.debug("Updating travel time on roads at simulation time %d" % step)
-        #road_network_graph = traffic_mannager.update_traffic_on_roads(road_network_graph)
-        #road_network_graph = traffic_mannager.update_context_on_roads(road_network_graph, contextual, step)
+        if step % 60 == 0:
+            logging.debug("Updating travel time on roads at simulation time %d" % step)
+            road_network_graph = traffic_mannager.update_context_on_roads(road_network_graph, contextual, step)
     
         if step >= travel_time_cycle_begin and travel_time_cycle_begin <= end and step%interval == 0:
-            #road_network_graph = traffic_mannager.update_traffic_on_roads(road_network_graph)
             road_network_graph = traffic_mannager.update_context_on_roads(road_network_graph, contextual, step)
             logging.debug("Updating travel time on roads at simulation time %d" % step)
 
-            error_count, total_count = traffic_mannager.reroute_vehicles(road_network_graph, p, error_count, total_count)           
+            error_count, total_count = traffic_mannager.reroute_vehicles(road_network_graph, p, error_count, total_count, broken_routes)           
 
         step += 1
 
+    logging.debug('##### Broken routes: ' + str(len(broken_routes)))
     logging.debug('##### Route total count: ' + str(total_count))
+    logging.debug('##### Route success count: ' + str(total_count - error_count))
     logging.debug('##### Route error count: ' + str(error_count))
     
-    time.sleep(10)
+    #time.sleep(10)
     logging.debug("Simulation finished")
     traci.close()
     sys.stdout.flush()
-    time.sleep(10)
+    #time.sleep(10)
         
 def start_simulation(sumo, scenario, network, begin, end, interval, output, summary, route_log, replication, p):
     logging.debug("Finding unused port")
@@ -105,11 +107,11 @@ def main():
 
     parser = OptionParser()
     parser.add_option("-c", "--command", dest="command", default="sumo", help="The command used to run SUMO [default: %default]", metavar="COMMAND")
-    parser.add_option("-s", "--scenario", dest="scenario", default="../sumo/chicago.sumo.cfg", help="A SUMO configuration file [default: %default]", metavar="FILE")
-    parser.add_option("-n", "--network", dest="network", default="../sumo/chicago.net.xml", help="A SUMO network definition file [default: %default]", metavar="FILE")    
-    parser.add_option("-b", "--begin", dest="begin", type="int", default=1500, action="store", help="The simulation time (s) at which the re-routing begins [default: %default]", metavar="BEGIN")
-    parser.add_option("-e", "--end", dest="end", type="int", default=5000, action="store", help="The simulation time (s) at which the re-routing ends [default: %default]", metavar="END")
-    parser.add_option("-i", "--interval", dest="interval", type="int", default=1000, action="store", help="The interval (s) of classification [default: %default]", metavar="INTERVAL")
+    parser.add_option("-s", "--scenario", dest="scenario", default="../sumo/over_simple.sumo.cfg", help="A SUMO configuration file [default: %default]", metavar="FILE")
+    parser.add_option("-n", "--network", dest="network", default="../sumo/over_simple.net.xml", help="A SUMO network definition file [default: %default]", metavar="FILE")    
+    parser.add_option("-b", "--begin", dest="begin", type="int", default=50, action="store", help="The simulation time (s) at which the re-routing begins [default: %default]", metavar="BEGIN")
+    parser.add_option("-e", "--end", dest="end", type="int", default=2000, action="store", help="The simulation time (s) at which the re-routing ends [default: %default]", metavar="END")
+    parser.add_option("-i", "--interval", dest="interval", type="int", default=150, action="store", help="The interval (s) of classification [default: %default]", metavar="INTERVAL")
     parser.add_option("-o", "--output", dest="output", default="reroute.xml", help="The XML file at which the output must be written [default: %default]", metavar="FILE")
     parser.add_option("-l", "--logfile", dest="logfile", default="sumo-launchd.log", help="log messages to logfile [default: %default]", metavar="FILE")
     parser.add_option("-m", "--summary", dest="summary", default="summary.xml", help="The XML file at which the summary output must be written [default: %default]", metavar="FILE")
@@ -117,10 +119,6 @@ def main():
     parser.add_option("-t", "--replication", dest="replication", default="1", help="number of replications [default: %default]", metavar="REPLICATION")
     parser.add_option("-p", "--percentage", dest="percentage", default="1", help="percentage of improvement on safety [default: %default]", metavar="REPLICATION")
 
-
-    
-
-    
     (options, args) = parser.parse_args()
     
     logging.basicConfig(filename=options.logfile, level=logging.DEBUG)

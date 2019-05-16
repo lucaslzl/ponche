@@ -6,24 +6,6 @@ import random
 import log_mannager
 
 
-def update_traffic_on_roads(graph): #, safety_file_name):
-
-    for road in graph.nodes():
-
-        average_speed = traci.edge.getLastStepMeanSpeed(road)
-        max_speed = traci.lane.getMaxSpeed(str(road) + "_0")
-
-        dummy_speed = float(max_speed - average_speed) / float(max_speed)
-        #dummy_speed = max_speed - average_speed
-        if dummy_speed < 0:
-            dummy_speed = 0
-
-        for successor_road in graph.successors(road):
-            graph.adj[road][successor_road]["weight"] = (graph.adj[road][successor_road]["weight"] + dummy_speed) / 2.0
-                
-    return graph
-
-
 def invert_coords(coord):
     return (coord[1], coord[0])
 
@@ -58,26 +40,26 @@ def update_context_on_roads(graph, contextual, step):
     return graph
 
 
-def building_route(s, t, r, pred_list, safety_index_list, G):
-    route = []
-    route.append(t)
+def verify_route_consistency(route):
 
-    while s != t:
-        pred = pred_list[(t, r)]
-        route.insert(0, pred)
-        edge_id = G.adj[pred][t]["id"]
-        t = pred
-        r = r - safety_index_list[edge_id]
+    worked = True
+    for vertex in route:
+        print(traci.edge.getIDList())
+        if vertex not in traci.edge.getIDList():
+            worked = False
 
-    return route
+    print('\n\n RESULTADO: ' + str(worked) + '\n\n')
 
 
-def reroute_vehicles(graph, p, error_count, total_count):
+def reroute_vehicles(graph, p, error_count, total_count, broken_routes):
 
     vehicles = list(set(traci.vehicle.getIDList()))
     vehicles.sort()
 
     for vehicle in vehicles:
+
+        if vehicle in broken_routes: continue
+
         source = traci.vehicle.getRoadID(vehicle)
         if source.startswith(":"): continue
         route = traci.vehicle.getRoute(vehicle)
@@ -88,21 +70,15 @@ def reroute_vehicles(graph, p, error_count, total_count):
             logging.debug("Calculating optimal path for pair (%s, %s)" % (source, destination))
             shortest_path = nx.dijkstra_path(graph, source, destination, "weight")
 
+            #verify_route_consistency(shortest_path)
+
             try:
                 total_count+=1
                 traci.vehicle.setRoute(vehicle, shortest_path)
-                #traci.vehicle.rerouteEffort(vehicle)
-
-                print('\n\n')
-                print(str(source))
-                print(str(destination))
-                print(str(route))
-                print(str(shortest_path))
-                print('\n\n')
-
-                #exit()
-
+                #traci.vehicle.rerouteTraveltime(vehicle)
             except Exception, e:
                 error_count+=1
+                broken_routes.append(vehicle)
+                #print('\n\n ROUTE: {0} \n SHORTEST: {1}\n\n'.format(str(route), str(shortest_path)))
 
     return error_count, total_count
