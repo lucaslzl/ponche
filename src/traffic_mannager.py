@@ -35,7 +35,8 @@ def update_context_on_roads(graph, contextual, step):
         #weight = contextual.trade_off(traffic, start, end, step_time, context_weight={'traffic': 2, 'crimes': 1, 'crashes': 1})
 
         for successor_road in graph.successors(road):
-            graph.adj[road][successor_road]["weight"] = (graph.adj[road][successor_road]["weight"] + weight) / 2.0
+            #graph.adj[road][successor_road]["weight"] = (graph.adj[road][successor_road]["weight"] + weight) / 2.0
+            graph.adj[road][successor_road]["weight"] = weight
 
     return graph
 
@@ -60,7 +61,7 @@ def reroute_vehicles(graph, p, error_count, total_count):
             
             try:
                 total_count+=1
-                traci.vehicle.setRoute(vehicle, shortest_path)
+                traci.vehicle.setRoute(vehicle, shortest_path[1])
                 #traci.vehicle.rerouteTraveltime(vehicle)
             except Exception, e:
                 error_count+=1
