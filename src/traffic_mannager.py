@@ -57,10 +57,9 @@ def reroute_vehicles(graph, p, error_count, total_count, broken_routes):
         if source != destination:
 
             logging.debug("Calculating optimal path for pair (%s, %s)" % (source, destination))
-            shortest_path = nx.dijkstra_path(graph, source, destination, "weight")
-            #shortest_path = nx.algorithms.shortest_paths.dense.floyd_warshall(graph, "weight")
-            #shortest_path = k_shortest_paths(graph, source, destination, 3)
-
+            shortest_path = nx.algorithms.shortest_paths.weighted.bidirectional_dijkstra(graph, source, destination, "weight")
+            #shortest_path = nx.algorithms.shortest_paths.astar.astar_path(graph, source, destination)
+            
             try:
                 total_count+=1
                 traci.vehicle.setRoute(vehicle, shortest_path)
