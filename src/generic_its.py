@@ -65,7 +65,7 @@ def run(network, begin, end, interval, route_log, replication, p):
 
         step += 1
 
-    logging.debug('##### Broken routes: ' + str(len(broken_routes)))
+    logging.debug('##### Broken routes: ' + str(broken_routes))
     logging.debug('##### Route total count: ' + str(total_count))
     logging.debug('##### Route success count: ' + str(total_count - error_count))
     logging.debug('##### Route error count: ' + str(error_count))

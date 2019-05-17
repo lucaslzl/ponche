@@ -88,11 +88,12 @@ class Contextual:
 			scores.append(self.calculate_score(start, end, key, step_time))
 
 		overall_score = traffic*context_weight['traffic']
-		if overall_score < 0:
-			overall_score = 0
 			
 		for indx, score in enumerate(scores):
 			overall_score += score*context_weight[valid_keys[indx].split('_')[0]]
+
+		if overall_score < 1:
+			overall_score = 1
 
 		return overall_score
 		

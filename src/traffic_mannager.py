@@ -40,17 +40,6 @@ def update_context_on_roads(graph, contextual, step):
     return graph
 
 
-def verify_route_consistency(route):
-
-    worked = True
-    for vertex in route:
-        print(traci.edge.getIDList())
-        if vertex not in traci.edge.getIDList():
-            worked = False
-
-    print('\n\n RESULTADO: ' + str(worked) + '\n\n')
-
-
 def reroute_vehicles(graph, p, error_count, total_count, broken_routes):
 
     vehicles = list(set(traci.vehicle.getIDList()))
@@ -69,8 +58,8 @@ def reroute_vehicles(graph, p, error_count, total_count, broken_routes):
 
             logging.debug("Calculating optimal path for pair (%s, %s)" % (source, destination))
             shortest_path = nx.dijkstra_path(graph, source, destination, "weight")
-
-            #verify_route_consistency(shortest_path)
+            #shortest_path = nx.algorithms.shortest_paths.dense.floyd_warshall(graph, "weight")
+            #shortest_path = k_shortest_paths(graph, source, destination, 3)
 
             try:
                 total_count+=1
@@ -82,3 +71,4 @@ def reroute_vehicles(graph, p, error_count, total_count, broken_routes):
                 #print('\n\n ROUTE: {0} \n SHORTEST: {1}\n\n'.format(str(route), str(shortest_path)))
 
     return error_count, total_count
+
