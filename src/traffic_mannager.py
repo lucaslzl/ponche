@@ -40,14 +40,12 @@ def update_context_on_roads(graph, contextual, step):
     return graph
 
 
-def reroute_vehicles(graph, p, error_count, total_count, broken_routes):
+def reroute_vehicles(graph, p, error_count, total_count):
 
     vehicles = list(set(traci.vehicle.getIDList()))
     vehicles.sort()
 
     for vehicle in vehicles:
-
-        if vehicle in broken_routes: continue
 
         source = traci.vehicle.getRoadID(vehicle)
         if source.startswith(":"): continue
@@ -66,7 +64,6 @@ def reroute_vehicles(graph, p, error_count, total_count, broken_routes):
                 #traci.vehicle.rerouteTraveltime(vehicle)
             except Exception, e:
                 error_count+=1
-                broken_routes.append(vehicle)
                 #print('\n\n ROUTE: {0} \n SHORTEST: {1}\n\n'.format(str(route), str(shortest_path)))
 
     return error_count, total_count

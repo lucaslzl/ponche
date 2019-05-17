@@ -42,7 +42,4 @@ def build_road_graph(network):
             if source_edge.startswith(":") or dest_edge.startswith(":"): continue
             graph.add_edge(source_edge.encode("ascii"), dest_edge.encode("ascii"), id=source_edge, length=edges_length[source_edge], weight=0)
 
-    #plot_graph(graph)
-    #input(';')
-
     return graph

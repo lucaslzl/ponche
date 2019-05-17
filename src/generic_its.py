@@ -36,8 +36,6 @@ def run(network, begin, end, interval, route_log, replication, p):
     error_count, total_count = 0, 0
     logging.debug("Reading contextual data")
     contextual = Contextual()
-
-    broken_routes = []
     
     logging.debug("Running simulation now")    
     step = 1
@@ -61,11 +59,10 @@ def run(network, begin, end, interval, route_log, replication, p):
             road_network_graph = traffic_mannager.update_context_on_roads(road_network_graph, contextual, step)
             logging.debug("Updating travel time on roads at simulation time %d" % step)
 
-            error_count, total_count = traffic_mannager.reroute_vehicles(road_network_graph, p, error_count, total_count, broken_routes)           
+            error_count, total_count = traffic_mannager.reroute_vehicles(road_network_graph, p, error_count, total_count)           
 
         step += 1
 
-    logging.debug('##### Broken routes: ' + str(broken_routes))
     logging.debug('##### Route total count: ' + str(total_count))
     logging.debug('##### Route success count: ' + str(total_count - error_count))
     logging.debug('##### Route error count: ' + str(error_count))
