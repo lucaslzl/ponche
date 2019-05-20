@@ -38,6 +38,9 @@ class Contextual:
 				return str(last_window)
 
 			last_window = window
+			if last_window != 0:
+				print(last_window)
+				input(';')
 
 		return str(last_window)
 
@@ -80,10 +83,23 @@ class Contextual:
 		return max(score)
 
 
-	def trade_off(self, traffic, start, end, step_time, context_weight={'traffic': 1, 'crimes': 1.5, 'crashes': 0.5}):
+	def prepare_to_return(self, traffic, scores, valid_keys):
+
+		metrics = {}
+
+		metrics['traffic'] = traffic
+
+		for indx, score in enumerate(scores):
+			metrics[valid_keys[indx].split('_')[0]] = score
+
+		return metrics
+
+
+	def trade_off(self, traffic, start, end, step_time, context_weight={'traffic': 1, 'crimes': 1, 'crashes': 1}):
 
 		scores = []
 		valid_keys = [x for x in self.all_clusters if self.city in x]
+		valid_keys.sort()
 		for key in valid_keys:
 			scores.append(self.calculate_score(start, end, key, step_time))
 
@@ -95,7 +111,7 @@ class Contextual:
 		if overall_score < 1:
 			overall_score = 1
 
-		return overall_score
+		return overall_score, self.prepare_to_return(traffic, scores, valid_keys)
 		
 
 if __name__ == '__main__':

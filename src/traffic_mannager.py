@@ -28,17 +28,17 @@ def update_context_on_roads(graph, contextual, step):
         end = invert_coords(end)
         
         # Trade-off
-        step_time = step // 100
-        weight = contextual.trade_off(traffic, start, end, step_time, context_weight={'traffic': 1, 'crimes': 1, 'crashes': 1})
-        #weight = contextual.trade_off(traffic, start, end, step_time, context_weight={'traffic': 1, 'crimes': 2, 'crashes': 1})
-        #weight = contextual.trade_off(traffic, start, end, step_time, context_weight={'traffic': 1, 'crimes': 1, 'crashes': 2})
-        #weight = contextual.trade_off(traffic, start, end, step_time, context_weight={'traffic': 2, 'crimes': 1, 'crashes': 1})
+        step_time = step // 1
+        weight, metrics = contextual.trade_off(traffic, start, end, step_time)
+        #weight, metrics = contextual.trade_off(traffic, start, end, step_time, context_weight={'traffic': 1, 'crimes': 2, 'crashes': 1})
+        #weight, metrics = contextual.trade_off(traffic, start, end, step_time, context_weight={'traffic': 1, 'crimes': 1, 'crashes': 2})
+        #weight, metrics = contextual.trade_off(traffic, start, end, step_time, context_weight={'traffic': 2, 'crimes': 1, 'crashes': 1})
 
         for successor_road in graph.successors(road):
             #graph.adj[road][successor_road]["weight"] = (graph.adj[road][successor_road]["weight"] + weight) / 2.0
             graph.adj[road][successor_road]["weight"] = weight
 
-    return graph
+    return graph, metrics
 
 
 def reroute_vehicles(graph, p, error_count, total_count):

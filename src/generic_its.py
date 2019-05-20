@@ -43,6 +43,8 @@ def run(network, begin, end, interval, route_log, replication, p):
     # The time at which a cycle for collecting travel time measurements begins
     travel_time_cycle_begin = interval
 
+    traffic, crimes, crashes = [], [], []
+
     while step == 1 or traci.simulation.getMinExpectedNumber() > 0:
         logging.debug("Minimum expected number of vehicles: %d" % traci.simulation.getMinExpectedNumber())
         traci.simulationStep()
@@ -56,7 +58,10 @@ def run(network, begin, end, interval, route_log, replication, p):
         # road_network_graph = traffic_mannager.update_context_on_roads(road_network_graph, contextual, step)
     
         if step >= travel_time_cycle_begin and travel_time_cycle_begin <= end and step%interval == 0:
-            road_network_graph = traffic_mannager.update_context_on_roads(road_network_graph, contextual, step)
+            road_network_graph, metrics = traffic_mannager.update_context_on_roads(road_network_graph, contextual, step)
+            traffic.append(metrics['traffic'])
+            crimes.append(metrics['crimes'])
+            crashes.append(metrics['crashes'])
             logging.debug("Updating travel time on roads at simulation time %d" % step)
 
             error_count, total_count = traffic_mannager.reroute_vehicles(road_network_graph, p, error_count, total_count)           
@@ -66,6 +71,9 @@ def run(network, begin, end, interval, route_log, replication, p):
     logging.debug('##### Route total count: ' + str(total_count))
     logging.debug('##### Route success count: ' + str(total_count - error_count))
     logging.debug('##### Route error count: ' + str(error_count))
+    logging.debug('##### Traffic: \n {0} \n Mean: {1} / Std: {2}'.format(str(traffic), str(np.mean(traffic)), str(np.std(traffic))))
+    logging.debug('##### Crimes: \n {0} \n Mean: {1} / Std: {2}'.format(str(crimes), str(np.mean(crimes)), str(np.std(crimes))))
+    logging.debug('##### Crashes: \n {0} \n Mean: {1} / Std: {2}'.format(str(crashes), str(np.mean(crashes)), str(np.std(crashes))))
     
     #time.sleep(10)
     logging.debug("Simulation finished")
@@ -104,8 +112,8 @@ def main():
 
     parser = OptionParser()
     parser.add_option("-c", "--command", dest="command", default="sumo", help="The command used to run SUMO [default: %default]", metavar="COMMAND")
-    parser.add_option("-s", "--scenario", dest="scenario", default="../sumo/austin.sumo.cfg", help="A SUMO configuration file [default: %default]", metavar="FILE")
-    parser.add_option("-n", "--network", dest="network", default="../sumo/austin.net.xml", help="A SUMO network definition file [default: %default]", metavar="FILE")    
+    parser.add_option("-s", "--scenario", dest="scenario", default="../sumo/chicago.sumo.cfg", help="A SUMO configuration file [default: %default]", metavar="FILE")
+    parser.add_option("-n", "--network", dest="network", default="../sumo/chicago.net.xml", help="A SUMO network definition file [default: %default]", metavar="FILE")    
     parser.add_option("-b", "--begin", dest="begin", type="int", default=1500, action="store", help="The simulation time (s) at which the re-routing begins [default: %default]", metavar="BEGIN")
     parser.add_option("-e", "--end", dest="end", type="int", default=7000, action="store", help="The simulation time (s) at which the re-routing ends [default: %default]", metavar="END")
     parser.add_option("-i", "--interval", dest="interval", type="int", default=500, action="store", help="The interval (s) of classification [default: %default]", metavar="INTERVAL")
