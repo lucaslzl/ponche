@@ -116,7 +116,7 @@ def main():
     parser.add_option("-n", "--network", dest="network", default="../sumo/chicago.net.xml", help="A SUMO network definition file [default: %default]", metavar="FILE")    
     parser.add_option("-b", "--begin", dest="begin", type="int", default=1500, action="store", help="The simulation time (s) at which the re-routing begins [default: %default]", metavar="BEGIN")
     parser.add_option("-e", "--end", dest="end", type="int", default=7000, action="store", help="The simulation time (s) at which the re-routing ends [default: %default]", metavar="END")
-    parser.add_option("-i", "--interval", dest="interval", type="int", default=500, action="store", help="The interval (s) of classification [default: %default]", metavar="INTERVAL")
+    parser.add_option("-i", "--interval", dest="interval", type="int", default=250, action="store", help="The interval (s) of classification [default: %default]", metavar="INTERVAL")
     parser.add_option("-o", "--output", dest="output", default="reroute.xml", help="The XML file at which the output must be written [default: %default]", metavar="FILE")
     parser.add_option("-l", "--logfile", dest="logfile", default="sumo-launchd.log", help="log messages to logfile [default: %default]", metavar="FILE")
     parser.add_option("-m", "--summary", dest="summary", default="summary.xml", help="The XML file at which the summary output must be written [default: %default]", metavar="FILE")
