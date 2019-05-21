@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import sys
 from functools import reduce
+import matplotlib.pyplot as plt
 
 import geopy.distance
 from shapely.geometry import Point, shape, LinearRing, LineString
@@ -116,25 +117,25 @@ class ClusterOperation:
 	def get_normalized(self, lengcluster, cluster):
 
 		if (lengcluster[1] - lengcluster[0]) == 0:
-			return 0.001
+			return 0.1
 
 		normalized = 1 - (cluster['len'] - lengcluster[0]) / (lengcluster[1] - lengcluster[0])
 		if normalized != 0:
 			return normalized
 		else:
-			return 0.001
+			return 0.1
 
 
-	def calculate_gaussian_paramethers(self, cluster, centroid_point):
+	def calculate_gaussian_paramethers(self, cluster):
 
 		distances = []
 		
 		for point in cluster['cluster']:
-			cluster_point = Point(point[0], point[1])
-			dist = geopy.distance.distance(cluster_point, centroid_point).km
+			dist = geopy.distance.distance(point, cluster['centroid']).m
 			distances.append(dist)
 
-		return np.mean(distances), np.std(distances)
+		hist = np.histogram(distances, density=True)[0]
+		return np.mean(hist), np.std(hist)
 
 			
 	def find_centroid_distance(self, cluster, line, cluster_max_density):
@@ -143,11 +144,13 @@ class ClusterOperation:
 
 		centroid_point = Point(cluster['centroid'][0], cluster['centroid'][1])
 		p_near = self.get_nearest_point_from_line(line, centroid_point)
-		center_dist = geopy.distance.distance(p_near, cluster['centroid']).km
+		center_dist = geopy.distance.distance(p_near, cluster['centroid']).m
 
 		if Point(*p_near).within(cluster['cluster_poly']):
 			normalize_density = self.get_normalized(cluster_max_density, cluster)
-			p_mean, p_std = self.calculate_gaussian_paramethers(cluster, centroid_point)
+			p_mean, p_std = self.calculate_gaussian_paramethers(cluster)
+			print(str(center_dist),  str(normalize_density), str(p_mean), str(p_std))
+			input(';;;;')
 			return center_dist, normalize_density, p_mean, p_std
 		else:
 			return -1, -1, -1, -1
