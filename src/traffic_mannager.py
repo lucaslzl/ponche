@@ -12,6 +12,8 @@ def invert_coords(coord):
 
 def update_context_on_roads(graph, contextual, step):
 
+    all_metrics = []
+
     for road in graph.nodes():
 
         # Traffic
@@ -34,11 +36,13 @@ def update_context_on_roads(graph, contextual, step):
         #weight, metrics = contextual.trade_off(traffic, start, end, step_time, context_weight={'traffic': 1, 'crimes': 1, 'crashes': 2})
         #weight, metrics = contextual.trade_off(traffic, start, end, step_time, context_weight={'traffic': 2, 'crimes': 1, 'crashes': 1})
 
+        all_metrics.append(metrics)
+
         for successor_road in graph.successors(road):
             #graph.adj[road][successor_road]["weight"] = (graph.adj[road][successor_road]["weight"] + weight) / 2.0
             graph.adj[road][successor_road]["weight"] = weight
 
-    return graph, metrics
+    return graph, all_metrics
 
 
 def reroute_vehicles(graph, p, error_count, total_count):

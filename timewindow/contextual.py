@@ -25,12 +25,16 @@ class Contextual:
 		self.co = ClusterOperation()
 
 
-	def parzen_window(self, x, center, stan_deviation):
-		return (1/(np.sqrt(2*np.pi*stan_deviation))) * (np.exp(-(((x-center)**2)/2)*(stan_deviation**2)))
-
+	# https://en.wikipedia.org/wiki/Normal_distribution
+	# First part = 1/sqrt()
+	# Second part = euler**(...)
+	def calculate_gaussian(self, x, density, p_mean, p_std):
+		gaussian = (1/(np.sqrt(2*np.pi*(p_std**2)))) * np.exp(-(((x-p_mean)**2)/(2*(p_std**2)))) 
+		return  gaussian * density
 
 	def find_last_window(self, windows, step_time):
 
+		windows = list(map(int, windows))
 		windows.sort()
 		last_window = 0
 		for window in windows:
@@ -38,9 +42,6 @@ class Contextual:
 				return str(last_window)
 
 			last_window = window
-			if last_window != 0:
-				print(last_window)
-				input(';')
 
 		return str(last_window)
 
@@ -61,9 +62,9 @@ class Contextual:
 			clusters = self.all_clusters[key][self.month]['unknown'][last_window]
 			cluster_max_density = self.co.calculate_density(clusters)
 			for cluster in self.co.get_clusters_info(clusters):
-				center_dist, ext_dist, density = self.co.find_centroid_distance(cluster, line, cluster_max_density)
+				center_dist, density, p_mean, p_std = self.co.find_centroid_distance(cluster, line, cluster_max_density)
 				if center_dist != -1:
-					score.append(self.parzen_window(center_dist, ext_dist, density))
+					score.append(self.calculate_gaussian(center_dist, density, p_mean, p_std))
 
 		# With type
 		else:
@@ -76,9 +77,9 @@ class Contextual:
 				clusters = self.all_clusters[key][self.month][types][last_window]
 				cluster_max_density = self.co.calculate_density(clusters)
 				for cluster in self.co.get_clusters_info(clusters):
-					center_dist, ext_dist, density = self.co.find_centroid_distance(cluster, line, cluster_max_density)
+					center_dist, density, p_mean, p_std = self.co.find_centroid_distance(cluster, line, cluster_max_density)
 					if center_dist != -1:
-						score.append(self.parzen_window(center_dist, ext_dist, density))
+						score.append(self.calculate_gaussian(center_dist, density, p_mean, p_std))
 
 		return max(score)
 

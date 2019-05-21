@@ -27,6 +27,15 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 from timewindow.contextual import Contextual
 
+
+def iterate_metrics(traffic, crimes, crashes, all_metrics):
+
+    for metrics in all_metrics:
+        traffic.append(metrics['traffic'])
+        crimes.append(metrics['crimes'])
+        crashes.append(metrics['crashes'])
+
+
               
 def run(network, begin, end, interval, route_log, replication, p):
 
@@ -58,10 +67,8 @@ def run(network, begin, end, interval, route_log, replication, p):
         # road_network_graph = traffic_mannager.update_context_on_roads(road_network_graph, contextual, step)
     
         if step >= travel_time_cycle_begin and travel_time_cycle_begin <= end and step%interval == 0:
-            road_network_graph, metrics = traffic_mannager.update_context_on_roads(road_network_graph, contextual, step)
-            traffic.append(metrics['traffic'])
-            crimes.append(metrics['crimes'])
-            crashes.append(metrics['crashes'])
+            road_network_graph, all_metrics = traffic_mannager.update_context_on_roads(road_network_graph, contextual, step)
+            iterate_metrics(traffic, crimes, crashes, all_metrics)
             logging.debug("Updating travel time on roads at simulation time %d" % step)
 
             error_count, total_count = traffic_mannager.reroute_vehicles(road_network_graph, p, error_count, total_count)           

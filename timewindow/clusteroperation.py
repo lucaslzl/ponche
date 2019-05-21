@@ -67,6 +67,7 @@ class ClusterOperation:
 				cluster_dict['id'] = str(counter)
 				cluster_dict['centroid'] = centroid
 				cluster_dict['len'] = int(len_cluster)
+				cluster_dict['cluster'] = cluster
 				cluster_dict['cluster_poly'] = cluster_poly
 				clusters_info.append(cluster_dict)
 	 
@@ -114,13 +115,28 @@ class ClusterOperation:
 
 	def get_normalized(self, lengcluster, cluster):
 
+		if (lengcluster[1] - lengcluster[0]) == 0:
+			return 0.001
+
 		normalized = 1 - (cluster['len'] - lengcluster[0]) / (lengcluster[1] - lengcluster[0])
 		if normalized != 0:
 			return normalized
 		else:
 			return 0.001
-			
 
+
+	def calculate_gaussian_paramethers(self, cluster, centroid_point):
+
+		distances = []
+		
+		for point in cluster['cluster']:
+			cluster_point = Point(point[0], point[1])
+			dist = geopy.distance.distance(cluster_point, centroid_point).km
+			distances.append(dist)
+
+		return np.mean(distances), np.std(distances)
+
+			
 	def find_centroid_distance(self, cluster, line, cluster_max_density):
 
 		center_dist, ext_dist = 0, 0
@@ -130,11 +146,8 @@ class ClusterOperation:
 		center_dist = geopy.distance.distance(p_near, cluster['centroid']).km
 
 		if Point(*p_near).within(cluster['cluster_poly']):
-			point_exterior = self.get_nearest_point(cluster['cluster_poly'], Point(*p_near))
-			ext_dist = geopy.distance.distance(p_near, point_exterior).km
+			normalize_density = self.get_normalized(cluster_max_density, cluster)
+			p_mean, p_std = self.calculate_gaussian_paramethers(cluster, centroid_point)
+			return center_dist, normalize_density, p_mean, p_std
 		else:
-			return -1, -1, -1
-
-		normalize_density = self.get_normalized(cluster_max_density, cluster)
-
-		return center_dist, center_dist + ext_dist, normalize_density
+			return -1, -1, -1, -1
