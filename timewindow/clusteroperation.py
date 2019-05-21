@@ -149,8 +149,6 @@ class ClusterOperation:
 		if Point(*p_near).within(cluster['cluster_poly']):
 			normalize_density = self.get_normalized(cluster_max_density, cluster)
 			p_mean, p_std = self.calculate_gaussian_paramethers(cluster)
-			print(str(center_dist),  str(normalize_density), str(p_mean), str(p_std))
-			input(';;;;')
 			return center_dist, normalize_density, p_mean, p_std
 		else:
 			return -1, -1, -1, -1
