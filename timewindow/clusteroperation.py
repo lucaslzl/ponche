@@ -131,11 +131,10 @@ class ClusterOperation:
 		distances = []
 		
 		for point in cluster['cluster']:
-			dist = geopy.distance.distance(point, cluster['centroid']).m
+			dist = geopy.distance.distance(point, cluster['centroid']).km
 			distances.append(dist)
 
-		hist = np.histogram(distances, density=True)[0]
-		return np.mean(hist), np.std(hist)
+		return np.mean(distances), np.std(distances)
 
 			
 	def find_centroid_distance(self, cluster, line, cluster_max_density):
@@ -144,7 +143,7 @@ class ClusterOperation:
 
 		centroid_point = Point(cluster['centroid'][0], cluster['centroid'][1])
 		p_near = self.get_nearest_point_from_line(line, centroid_point)
-		center_dist = geopy.distance.distance(p_near, cluster['centroid']).m
+		center_dist = geopy.distance.distance(p_near, cluster['centroid']).km
 
 		if Point(*p_near).within(cluster['cluster_poly']):
 			normalize_density = self.get_normalized(cluster_max_density, cluster)
