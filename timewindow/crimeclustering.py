@@ -243,7 +243,7 @@ class TimeWindow:
 
 		return clusters
 
-	def find_window(self, data, clustering):
+	def find_window(self, data, clustering, ep=0.01):
 
 		dict_data = {}
 
@@ -266,7 +266,7 @@ class TimeWindow:
 
 					cluster_data = None
 					if len(data_window) >= 3:
-						cluster_data = clustering.clusterize(data_window).query('cluster != -1')
+						cluster_data = clustering.clusterize(data_window, ep=ep).query('cluster != -1')
 
 					dict_data[str(last_window)] = self.u.format_clusters(cluster_data)
 
@@ -288,7 +288,7 @@ class TimeWindow:
 					dict_data = self.find_window(crimes_filtered, clustering)
 					windows_clusters[crime] = dict_data
 		else:
-			dict_data = self.find_window(month_data, clustering)
+			dict_data = self.find_window(month_data, clustering, ep=0.02)
 			windows_clusters['unkown'] = dict_data
 
 		return windows_clusters

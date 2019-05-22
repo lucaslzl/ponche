@@ -77,9 +77,9 @@ def run(network, begin, end, interval, route_log, replication, p):
     logging.debug('##### Route total count: ' + str(total_count))
     logging.debug('##### Route success count: ' + str(total_count - error_count))
     logging.debug('##### Route error count: ' + str(error_count))
-    logging.debug('##### Traffic: \n {0} \n Mean: {1} / Std: {2}'.format(str(traffic), str(np.mean(traffic)), str(np.std(traffic))))
-    logging.debug('##### Crimes: \n {0} \n Mean: {1} / Std: {2}'.format(str(crimes), str(np.mean(crimes)), str(np.std(crimes))))
-    logging.debug('##### Crashes: \n {0} \n Mean: {1} / Std: {2}'.format(str(crashes), str(np.mean(crashes)), str(np.std(crashes))))
+    logging.debug('##### Traffic: {0} \n Mean: {1} / Std: {2}'.format(str(''), str(np.mean(traffic)), str(np.std(traffic))))
+    logging.debug('##### Crimes: {0} \n Mean: {1} / Std: {2}'.format(str(''), str(np.mean(crimes)), str(np.std(crimes))))
+    logging.debug('##### Crashes: {0} \n Mean: {1} / Std: {2}'.format(str(''), str(np.mean(crashes)), str(np.std(crashes))))
     
     #time.sleep(10)
     logging.debug("Simulation finished")

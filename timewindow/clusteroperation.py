@@ -119,11 +119,9 @@ class ClusterOperation:
 		if (lengcluster[1] - lengcluster[0]) == 0:
 			return 0.1
 
-		normalized = 1 - (cluster['len'] - lengcluster[0]) / (lengcluster[1] - lengcluster[0])
-		if normalized != 0:
-			return normalized
-		else:
-			return 0.1
+		normalized = (cluster['len'] - lengcluster[0]) / (lengcluster[1] - lengcluster[0])
+		return normalized
+
 
 
 	def calculate_gaussian_paramethers(self, cluster):
@@ -135,6 +133,10 @@ class ClusterOperation:
 			distances.append(dist)
 
 		return np.mean(distances), np.std(distances)
+
+
+	def get_the_ceil(self, p):
+		return float('{:.3f}'.format(p)) + 0.001
 
 			
 	def find_centroid_distance(self, cluster, line, cluster_max_density):
@@ -148,6 +150,6 @@ class ClusterOperation:
 		if Point(*p_near).within(cluster['cluster_poly']):
 			normalize_density = self.get_normalized(cluster_max_density, cluster)
 			p_mean, p_std = self.calculate_gaussian_paramethers(cluster)
-			return center_dist, normalize_density, p_mean, p_std
+			return center_dist, normalize_density, self.get_the_ceil(p_mean), self.get_the_ceil(p_std)
 		else:
 			return -1, -1, -1, -1

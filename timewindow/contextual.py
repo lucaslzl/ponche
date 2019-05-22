@@ -30,7 +30,7 @@ class Contextual:
 	# Second part = euler**(...)
 	def calculate_gaussian(self, x, density, p_mean, p_std):
 		gaussian = (1/(np.sqrt(2*np.pi*(p_std**2)))) * np.exp(-(((x-p_mean)**2)/(2*(p_std**2)))) 
-		return  gaussian * density
+		return  gaussian * density * 2
 
 	def find_last_window(self, windows, step_time):
 
@@ -58,6 +58,7 @@ class Contextual:
 			
 			windows = list(self.all_clusters[key][self.month]['unknown'].keys())
 			last_window = self.find_last_window(windows, step_time)
+
 			clusters = self.all_clusters[key][self.month]['unknown'][last_window]
 			cluster_max_density = self.co.calculate_density(clusters)
 
@@ -70,8 +71,10 @@ class Contextual:
 		else:
 
 			for types in self.all_clusters[key][self.month]:
+
 				windows = list(self.all_clusters[key][self.month][types].keys())
 				last_window = self.find_last_window(windows, step_time)
+
 				clusters = self.all_clusters[key][self.month][types][last_window]
 				cluster_max_density = self.co.calculate_density(clusters)
 
@@ -98,8 +101,9 @@ class Contextual:
 	def trade_off(self, traffic, start, end, step_time, context_weight={'traffic': 1, 'crimes': 1, 'crashes': 1}):
 
 		scores = []
-		valid_keys = [x for x in self.all_clusters if self.city in x]
+		valid_keys = [str(x) for x in self.all_clusters if self.city in x]
 		valid_keys.sort()
+		
 		for key in valid_keys:
 			scores.append(self.calculate_score(start, end, key, step_time))
 
