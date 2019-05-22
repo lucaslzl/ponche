@@ -55,12 +55,12 @@ class Contextual:
 
 		# Without type
 		if self.all_clusters[key][self.month].keys()[0] == 'unknown':
-
+			
 			windows = list(self.all_clusters[key][self.month]['unknown'].keys())
 			last_window = self.find_last_window(windows, step_time)
-
 			clusters = self.all_clusters[key][self.month]['unknown'][last_window]
 			cluster_max_density = self.co.calculate_density(clusters)
+
 			for cluster in self.co.get_clusters_info(clusters):
 				center_dist, density, p_mean, p_std = self.co.find_centroid_distance(cluster, line, cluster_max_density)
 				if center_dist != -1:
@@ -70,12 +70,11 @@ class Contextual:
 		else:
 
 			for types in self.all_clusters[key][self.month]:
-
 				windows = list(self.all_clusters[key][self.month][types].keys())
 				last_window = self.find_last_window(windows, step_time)
-				
 				clusters = self.all_clusters[key][self.month][types][last_window]
 				cluster_max_density = self.co.calculate_density(clusters)
+
 				for cluster in self.co.get_clusters_info(clusters):
 					center_dist, density, p_mean, p_std = self.co.find_centroid_distance(cluster, line, cluster_max_density)
 					if center_dist != -1:

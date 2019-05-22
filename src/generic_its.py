@@ -17,11 +17,11 @@ from optparse import OptionParser
 
 import sumo_mannager
 import graph_mannager
-import log_mannager
+#import log_mannager
 import traffic_mannager
 import traci
 
-import os,sys,inspect
+import inspect
 current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
@@ -34,7 +34,6 @@ def iterate_metrics(traffic, crimes, crashes, all_metrics):
         traffic.append(metrics['traffic'])
         crimes.append(metrics['crimes'])
         crashes.append(metrics['crashes'])
-
 
               
 def run(network, begin, end, interval, route_log, replication, p):
@@ -119,8 +118,8 @@ def main():
 
     parser = OptionParser()
     parser.add_option("-c", "--command", dest="command", default="sumo", help="The command used to run SUMO [default: %default]", metavar="COMMAND")
-    parser.add_option("-s", "--scenario", dest="scenario", default="../sumo/chicago.sumo.cfg", help="A SUMO configuration file [default: %default]", metavar="FILE")
-    parser.add_option("-n", "--network", dest="network", default="../sumo/chicago.net.xml", help="A SUMO network definition file [default: %default]", metavar="FILE")    
+    parser.add_option("-s", "--scenario", dest="scenario", default="../scenario/chicago.sumo.cfg", help="A SUMO configuration file [default: %default]", metavar="FILE")
+    parser.add_option("-n", "--network", dest="network", default="../scenario/chicago.net.xml", help="A SUMO network definition file [default: %default]", metavar="FILE")    
     parser.add_option("-b", "--begin", dest="begin", type="int", default=1500, action="store", help="The simulation time (s) at which the re-routing begins [default: %default]", metavar="BEGIN")
     parser.add_option("-e", "--end", dest="end", type="int", default=7000, action="store", help="The simulation time (s) at which the re-routing ends [default: %default]", metavar="END")
     parser.add_option("-i", "--interval", dest="interval", type="int", default=250, action="store", help="The interval (s) of classification [default: %default]", metavar="INTERVAL")

@@ -3,7 +3,7 @@ import logging
 import networkx as nx
 import random
 
-import log_mannager
+#import log_mannager
 
 
 def invert_coords(coord):
