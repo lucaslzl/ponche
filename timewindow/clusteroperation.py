@@ -119,9 +119,10 @@ class ClusterOperation:
 		if (lengcluster[1] - lengcluster[0]) == 0:
 			return 0.1
 
-		normalized = (cluster['len'] - lengcluster[0]) / (lengcluster[1] - lengcluster[0])
-		return normalized
+		#normalized = (cluster['len'] - lengcluster[0]) / (lengcluster[1] - lengcluster[0])
+		normalized = 1 - (lengcluster[1] - cluster['len']) / (lengcluster[1])
 
+		return normalized
 
 
 	def calculate_gaussian_paramethers(self, cluster):

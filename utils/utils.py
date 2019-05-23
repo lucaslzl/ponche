@@ -1,13 +1,15 @@
 import geopy.distance
 
-d1 = geopy.distance.distance((41.9050, -87.6412), (41.8715, -87.6412))
-d2 = geopy.distance.distance((41.9050, -87.6412), (41.9050, -87.6234))
+d1 = geopy.distance.distance((30.2822, -97.7472), (30.2822, -97.7369))
+d2 = geopy.distance.distance((30.2822, -97.7472), (30.2651, -97.7472))
 
+print('Austin')
 print(d1)
 print(d2)
 
-d1 = geopy.distance.distance((43.6810, -92.9940), (43.6561, -92.9940))
-d2 = geopy.distance.distance((43.6810, -92.9940), (43.6810, -92.9791))
+d1 = geopy.distance.distance((41.8962, -87.6359), (41.8962, -87.6257))
+d2 = geopy.distance.distance((41.8962, -87.6359), (41.8779, -87.6359))
 
+print('Chicago')
 print(d1)
 print(d2)

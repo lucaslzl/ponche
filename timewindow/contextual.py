@@ -29,8 +29,8 @@ class Contextual:
 	# First part = 1/sqrt()
 	# Second part = euler**(...)
 	def calculate_gaussian(self, x, density, p_mean, p_std):
-		gaussian = (1/(np.sqrt(2*np.pi*(p_std**2)))) * np.exp(-(((x-p_mean)**2)/(2*(p_std**2)))) 
-		return  gaussian * density * 2
+		gaussian = (1/(np.sqrt(2*np.pi*(p_std**2)))) * np.exp(-(((x-p_mean)**2)/(2*(p_std**2))))
+		return  gaussian #+ (density * 0.1)
 
 	def find_last_window(self, windows, step_time):
 
