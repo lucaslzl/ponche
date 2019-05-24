@@ -25,12 +25,9 @@ class Contextual:
 		self.co = ClusterOperation()
 
 
-	# https://en.wikipedia.org/wiki/Normal_distribution
-	# First part = 1/sqrt()
-	# Second part = euler**(...)
 	def calculate_gaussian(self, x, density, p_mean, p_std):
 		gaussian = (1/(np.sqrt(2*np.pi*(p_std**2)))) * np.exp(-(((x-p_mean)**2)/(2*(p_std**2))))
-		return  gaussian #+ (density * 0.1)
+		return  gaussian + (density * 0.2)
 
 	def find_last_window(self, windows, step_time):
 
@@ -108,12 +105,14 @@ class Contextual:
 			scores.append(self.calculate_score(start, end, key, step_time))
 
 		overall_score = traffic*context_weight['traffic']
+		if overall_score < 0:
+			overall_score = 0
 			
 		for indx, score in enumerate(scores):
 			overall_score += score*context_weight[valid_keys[indx].split('_')[0]]
 
-		if overall_score < 1:
-			overall_score = 1
+		if overall_score <= 0:
+			overall_score = 0.0001
 
 		return overall_score, self.prepare_to_return(traffic, scores, valid_keys)
 		

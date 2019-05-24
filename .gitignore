@@ -6,5 +6,3 @@ sumo/austin\.net\.xml
 sumo/chicago\.net\.xml
 
 *.pyc
-
-*.log

@@ -180,8 +180,8 @@ class HarryPlotter:
 		plt.clf()
 		ax = plt.subplot(111)
 
-		xlabels = ['Austin #1', 'Austin #2', 'Austin #3', 'Austin #4', 'Austin #5', 
-						'Chicago #1', 'Chicago #2', 'Chicago #3', 'Chicago #4', 'Chicago #5']
+		xlabels = ['Austin #1', 'Austin #2', 'Austin #3', 'Austin #4', 'Austin #5', 'Austin #6', 'Austin #7',
+						'Chicago #1', 'Chicago #2', 'Chicago #3', 'Chicago #4', 'Chicago #5', 'Chicago #6', 'Chicago #7']
 		colors = ['#800000', '#469990', '#000075', '#e6194B', '#4363d8', '#911eb4', '#aaffc3', '#e6beff']
 
 		means, stds = self.separate_mean_std(just_to_plot, metric, ordered_keys)
@@ -212,8 +212,8 @@ if __name__ == '__main__':
 	
 	results = hp.read_all_folders()
 	results_log = hp.read_log_files()
-	results_log = hp.normalize_data(results_log, 'Austin')
-	results_log = hp.normalize_data(results_log, 'Chicago')
+	#results_log = hp.normalize_data(results_log, 'Austin')
+	#results_log = hp.normalize_data(results_log, 'Chicago')
 	just_to_plot = hp.process_results(results)
 
 	for key in just_to_plot:
