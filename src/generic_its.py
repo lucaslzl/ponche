@@ -167,7 +167,10 @@ def main():
                     logging.warning("Superfluous command line arguments: \"%s\"" % " ".join(args))
                     
                 start_simulation(options.command, options.scenario, options.network, options.begin, options.end, options.interval, options.output, options.summary, options.route_log, options.replication, options.percentage, indx_config, config, iterate, city)
-    
+                
+                if os.path.exists('sumo-launchd.log'):
+                    os.remove('sumo-launchd.log')
+
 if __name__ == "__main__":
     warnings.simplefilter("ignore")
     main()    

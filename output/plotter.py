@@ -57,14 +57,60 @@ class HarryPlotter:
 				'time_loss': (np.mean(time_loss), np.std(time_loss))}
 
 
+	def calculate_metrics(self, accumulated):
+
+		mean_duration, mean_route_length, mean_time_loss = [], [], []
+		std_duration, std_route_length, std_time_loss = [], [], []
+
+
+		for ires in accumulated:
+			mean_duration.append(ires['duration'][0])
+			std_duration.append(ires['duration'][1])
+			
+			mean_route_length.append(ires['route_length'][0])
+			std_route_length.append(ires['route_length'][1])
+			
+			mean_time_loss.append(ires['time_loss'][0])
+			std_time_loss.append(ires['time_loss'][1])
+
+		return {'duration': (np.mean(mean_duration), np.mean(std_duration)),
+				'route_length': (np.mean(mean_route_length), np.mean(std_route_length)),
+				'time_loss': (np.mean(mean_time_loss), np.mean(std_time_loss))}
+
+
+	def calculate_contextual_metrics(self, accumulated):
+
+		mean_traffic, mean_crimes, mean_crashes = [], [], []
+		std_traffic, std_crimes, std_crashes = [], [], []
+
+		for ires in accumulated:
+			mean_traffic.append(ires['traffic']['mean'])
+			std_traffic.append(ires['traffic']['std'])
+
+			mean_crimes.append(ires['crimes']['mean'])
+			std_crimes.append(ires['crimes']['std'])
+
+			mean_crashes.append(ires['crashes']['mean'])
+			std_crashes.append(ires['crashes']['std'])
+
+		return {'traffic': (np.mean(mean_traffic), np.mean(std_traffic)),
+				'crimes': (np.mean(mean_crimes), np.mean(std_crimes)),
+				'crashes': (np.mean(mean_crashes), np.mean(std_crashes))}
+
+
 	def read_reroute_files(self, results):
 
 		for city in ['austin', 'chicago']:
 
-			for folder in listdir('./data/'+city):
+			for folder in listdir('data/' + city):
 
-				ires = self.read_xml_file('./data/{0}/{1}/reroute.xml'.format(city, folder))
-				results['route_{0}_{1}'.format(city, folder)] = self.get_metrics(ires)
+				accumulated = []
+
+				for iterate in range(33):
+					ires = self.read_xml_file('./data/{0}/{1}/{2}_reroute.xml'.format(city, folder, iterate))
+					accumulated.append(self.get_metrics(ires))
+				
+				results['route_{0}_{1}'.format(city, folder)] = self.calculate_metrics(accumulated)
 
 		return results
 
@@ -73,10 +119,15 @@ class HarryPlotter:
 
 		for city in ['austin', 'chicago']:
 
-			for folder in listdir('./data/'+city):
+			for folder in listdir('data/' + city):
 
-				ires = self.read_json_file('./data/{0}/{1}/metrics.json'.format(city, folder))
-				results['context_{0}_{1}'.format(city, folder)] = ires
+				accumulated = []
+
+				for iterate in range(33):
+					ires = self.read_json_file('./data/{0}/{1}/{2}_metrics.json'.format(city, folder, iterate))
+					accumulated.append(ires)
+
+				results['context_{0}_{1}'.format(city, folder)] = self.calculate_contextual_metrics(accumulated)
 
 		return results
 
@@ -148,7 +199,6 @@ if __name__ == '__main__':
 
 	hp.read_reroute_files(results)
 	hp.read_metric_files(results)
-
 	hp.save_calculation(results)
 
-	hp.plot(results)
+	#hp.plot(results)
