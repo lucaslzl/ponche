@@ -128,11 +128,12 @@ class HarryPlotter:
 
 	def plot(self, results):
 
-		print(results.keys())
+		#print(results.keys())
 		ex_key = results.keys()[0]
 		metrics = results[ex_key].keys()
 		
 		contextual = [x for x in results.keys() if 'context' in x]
+		contextual.sort()
 		print(contextual)
 
 		#for metric in metrics:

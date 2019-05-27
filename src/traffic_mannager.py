@@ -66,8 +66,6 @@ def reroute_vehicles(graph, p, error_count, total_count, road_map):
 
     for vehicle in vehicles:
 
-        context_metrics = {'traffic': 0, 'crimes': 0, 'crashes': 0}
-
         source = traci.vehicle.getRoadID(vehicle)
         if source.startswith(":"): continue
         route = traci.vehicle.getRoute(vehicle)
@@ -81,6 +79,8 @@ def reroute_vehicles(graph, p, error_count, total_count, road_map):
             try:
                 total_count+=1
                 traci.vehicle.setRoute(vehicle, shortest_path[1])
+
+                context_metrics = {'traffic': 0, 'crimes': 0, 'crashes': 0}
 
                 for vertex in list(shortest_path[1]):
                     context_metrics['traffic'] += road_map[vertex]['traffic']
