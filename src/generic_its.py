@@ -147,7 +147,7 @@ def main():
                 parser = OptionParser()
                 parser.add_option("-c", "--command", dest="command", default="sumo", help="The command used to run SUMO [default: %default]", metavar="COMMAND")
                 parser.add_option("-s", "--scenario", dest="scenario", default="../scenario/cfgs/{0}_{1}.sumo.cfg".format(city, iterate), help="A SUMO configuration file [default: %default]", metavar="FILE")
-                parser.add_option("-n", "--network", dest="network", default="../scenario/cfgs/{0}.net.xml".format(city), help="A SUMO network definition file [default: %default]", metavar="FILE")    
+                parser.add_option("-n", "--network", dest="network", default="../scenario/{0}.net.xml".format(city), help="A SUMO network definition file [default: %default]", metavar="FILE")    
                 parser.add_option("-b", "--begin", dest="begin", type="int", default=1500, action="store", help="The simulation time (s) at which the re-routing begins [default: %default]", metavar="BEGIN")
                 parser.add_option("-e", "--end", dest="end", type="int", default=7000, action="store", help="The simulation time (s) at which the re-routing ends [default: %default]", metavar="END")
                 parser.add_option("-i", "--interval", dest="interval", type="int", default=250, action="store", help="The interval (s) of classification [default: %default]", metavar="INTERVAL")
