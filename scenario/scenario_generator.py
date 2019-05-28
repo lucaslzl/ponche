@@ -6,9 +6,9 @@ def generate_routes():
 		os.makedirs('trips')
 
 	command = ("python /usr/share/sumo/tools/randomTrips.py --validate "
-				"-n /home/eros/Documentos/Projects/securesimulation/scenario/{0}.net.xml "
+				"-n /home/lucaszl/Documentos/Projetos/securesimulation/scenario/{0}.net.xml "
 				"-o trips/{0}_{1}.trips.xml "
-				"-s {2}")
+				"-s {2} ")
 
 	for city in ['austin', 'chicago']:
 		for i in range(33):
@@ -30,4 +30,5 @@ def generate_cfg():
 					    "\t</input>\n"
 						"</configuration>").format(city, i))
 
-generate_cfg()
+generate_routes()
+#generate_cfg()
