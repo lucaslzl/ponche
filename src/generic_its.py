@@ -130,7 +130,8 @@ def start_simulation(sumo, scenario, network, begin, end, interval, output, summ
 def main():
     # Option handling
 
-    for city in ['austin', 'chicago']:
+    #for city in ['austin', 'chicago']:
+    for city in ['chicago']:
 
         for indx_config, config in enumerate(['traffic', 'crimes', 'crashes', 'same', 'mtraffic', 'mcrimes', 'mcrashes']):
 
