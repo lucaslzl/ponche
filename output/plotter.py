@@ -226,10 +226,10 @@ if __name__ == '__main__':
 	
 	results = {}
 
-	hp.read_reroute_files(results)
-	hp.read_metric_files(results)
-	hp.save_calculation(results)
+	#hp.read_reroute_files(results)
+	#hp.read_metric_files(results)
+	#hp.save_calculation(results)
 
-	#results = hp.read_calculation()
+	results = hp.read_calculation()
 
 	hp.plot(results)
