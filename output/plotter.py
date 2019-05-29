@@ -52,7 +52,7 @@ class HarryPlotter:
 				route_length.append(float(info['routeLength']))
 				try:
 					time_loss.append(float(info['timeLoss']))
-				except Exception, e:
+				except Exception:
 					time_loss.append(0.0)
 
 		return {'duration': (np.mean(duration), np.std(duration)),
@@ -141,6 +141,13 @@ class HarryPlotter:
 			json.dump(results, write_file, indent=4)
 
 
+	def read_calculation(self):
+
+		with open('all_results.json', "r") as write_file:
+			return json.load(write_file)
+
+
+
 	def separate_mean_std(self, just_to_plot, metric, keys_order):
 
 		means, stds = [], []
@@ -169,25 +176,21 @@ class HarryPlotter:
 		plt.clf()
 		ax = plt.subplot(111)
 
-		# xlabels = ['Austin #1', 'Austin #2', 'Austin #3', 'Austin #4', 'Austin #5', 'Austin #6', 'Austin #7',
-		# 				'Chicago #1', 'Chicago #2', 'Chicago #3', 'Chicago #4', 'Chicago #5', 'Chicago #6', 'Chicago #7']
-		colors = ['#800000', '#469990', '#000075', '#e6194B', '#4363d8', '#911eb4', '#aaffc3', '#e6beff']
-
 		cities = ['austin', 'chicago']
 		keys_order = ['traffic', 'crimes', 'crashes', 'same', 'mtraffic', 'mcrimes', 'mcrashes']
 
-		xlabels = ['Atraffic', 'Acrimes', 'Acrashes', 'Asame', 'Amtraffic', 'Amcrimes', 'Amcrashes',
-		 				'Ctraffic', 'Ccrimes', 'Ccrashes', 'Csame', 'Cmtraffic', 'Cmcrimes', 'Cmcrashes']
+		xlabels = keys_order + keys_order
 
 		means, stds = self.separate_mean_std(just_to_plot, metric, keys_order)
 		
-		for index, key in enumerate(xlabels):
-			plt.plot(index, means[index], 'o--')
-		#ax.bar(xlabels, means, yerr=stds, align='center', alpha=0.7, color=colors, ecolor='gray', capsize=5)
-		#ax.bar(xlabels, means, align='center', alpha=0.7, color=colors, capsize=5)
+		plt.plot(np.arange(0, 7), means[0:7], 'o-.', color='#1d4484', label='Austin')
+		plt.plot(np.arange(7, 14), means[7:14], 'o-.', color='#7c0404', label='Chicago')
+		
 		plt.xlabel('Execution Configuration')
 		plt.ylabel('{0} ({1})'.format(metric.replace('_', ' ').capitalize(), self.METRIC_UNIT[metric]))
 		plt.xticks(np.arange(0, len(xlabels)), xlabels, rotation=50)
+
+		ax.legend()
 
 		plt.savefig('metric_plots/{0}.pdf'.format(metric), bbox_inches="tight", format='pdf')
 
@@ -226,5 +229,7 @@ if __name__ == '__main__':
 	hp.read_reroute_files(results)
 	hp.read_metric_files(results)
 	hp.save_calculation(results)
+
+	#results = hp.read_calculation()
 
 	hp.plot(results)
