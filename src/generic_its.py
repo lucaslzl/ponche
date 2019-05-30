@@ -44,13 +44,22 @@ def iterate_metrics(all_metrics):
 
 def create_output_file(total_count, success_count, error_count, traffic, crimes, crashes, config, iterate, city):
 
+    traffic_ms = (np.mean(traffic), np.std(traffic))
+    crimes_ms = (np.mean(crimes), np.std(crimes))
+    crashes_ms = (np.mean(crashes), np.std(crashes))
+
     metrics = {}
     metrics['total_count'] = total_count
     metrics['success_count'] = success_count
     metrics['error_count'] = error_count
-    metrics['traffic'] = {'mean': traffic[0], 'std': traffic[1]}
-    metrics['crimes'] = {'mean': crimes[0], 'std': crimes[1]}
-    metrics['crashes'] = {'mean': crashes[0], 'std': crashes[1]}
+
+    metrics['out_traffic'] = traffic
+    etrics['out_crimes'] = crimes
+    etrics['out_crashes'] = crashes
+    
+    metrics['traffic'] = {'mean': traffic_ms[0], 'std': traffic_ms[1]}
+    metrics['crimes'] = {'mean': crimes_ms[0], 'std': crimes_ms[1]}
+    metrics['crashes'] = {'mean': crashes_ms[0], 'std': crashes_ms[1]}
 
     with open('../output/data/{0}/{1}/{2}_metrics.json'.format(city, config, iterate), "w") as write_file:
         json.dump(metrics, write_file, indent=4)
@@ -90,10 +99,6 @@ def run(network, begin, end, interval, route_log, replication, p, indx_config, c
         step += 1
 
     traffic, crimes, crashes = iterate_metrics(all_metrics)
-
-    traffic = (np.mean(traffic), np.std(traffic))
-    crimes = (np.mean(crimes), np.std(crimes))
-    crashes = (np.mean(crashes), np.std(crashes))
 
     create_output_file(total_count, total_count - error_count, error_count, traffic, crimes, crashes, config, iterate, city)
     

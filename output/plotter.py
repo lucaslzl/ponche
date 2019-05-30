@@ -47,13 +47,18 @@ class HarryPlotter:
 		tripinfos = ires.find('tripinfos')
 
 		for info in tripinfos.findAll('tripinfo'):
-			if 'duration' in info.attrs.keys() and 'routeLength' in info.attrs.keys() and 'timeLoss' in info.attrs.keys():
-				duration.append(float(info['duration']))
-				route_length.append(float(info['routeLength']))
-				try:
-					time_loss.append(float(info['timeLoss']))
-				except Exception:
-					time_loss.append(0.0)
+
+			try:
+				dur = float(info['duration'])
+				rou = float(info['routeLength'])
+				tim = float(info['timeLoss'])
+
+				if dur > 10 and rou > 50:
+					duration.append(dur)
+					route_length.append(rou)
+					time_loss.append(tim)
+			except Exception:
+				pass
 
 		return {'duration': (np.mean(duration), np.std(duration)),
 				'route_length': (np.mean(route_length), np.std(route_length)),
@@ -159,6 +164,7 @@ class HarryPlotter:
 			means.append(just_to_plot[k][metric][0])
 			stds.append(just_to_plot[k][metric][1])
 
+		# Chicago
 		for key in keys_order:
 			k = [x for x in just_to_plot if key in x and 'chicago' in x][0]
 
@@ -226,10 +232,10 @@ if __name__ == '__main__':
 	
 	results = {}
 
-	#hp.read_reroute_files(results)
-	#hp.read_metric_files(results)
-	#hp.save_calculation(results)
+	hp.read_reroute_files(results)
+	hp.read_metric_files(results)
+	hp.save_calculation(results)
 
-	results = hp.read_calculation()
+	#results = hp.read_calculation()
 
 	hp.plot(results)
