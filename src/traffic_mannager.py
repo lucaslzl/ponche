@@ -11,7 +11,8 @@ CONTEXT_CONFIG = {'0' : {'traffic': 1, 'crimes': 0, 'crashes': 0},
                   '3' : {'traffic': 1, 'crimes': 1, 'crashes': 1},
                   '4' : {'traffic': 2, 'crimes': 1, 'crashes': 1},
                   '5' : {'traffic': 1, 'crimes': 2, 'crashes': 1},
-                  '6' : {'traffic': 1, 'crimes': 1, 'crashes': 2}}
+                  '6' : {'traffic': 1, 'crimes': 1, 'crashes': 2},
+                  '7' : {'traffic': 1, 'crimes': 1, 'crashes': 1}}
 
 
 def invert_coords(coord):
@@ -57,7 +58,7 @@ def update_context_on_roads(graph, contextual, step, indx_config, road_map):
     return graph
 
 
-def reroute_vehicles(graph, p, error_count, total_count, road_map):
+def reroute_vehicles(graph, p, error_count, total_count, indx_config, road_map):
 
     vehicles = list(set(traci.vehicle.getIDList()))
     vehicles.sort()
@@ -74,7 +75,14 @@ def reroute_vehicles(graph, p, error_count, total_count, road_map):
         if source != destination:
 
             logging.debug("Calculating optimal path for pair (%s, %s)" % (source, destination))
-            shortest_path = nx.algorithms.shortest_paths.weighted.bidirectional_dijkstra(graph, source, destination, "weight")
+
+            shortest_path = None
+
+            if indx_config == 7:
+                indx_source = route.index(source)
+                shortest_path = [1, route[indx_source:]]
+            else:
+                shortest_path = nx.algorithms.shortest_paths.weighted.bidirectional_dijkstra(graph, source, destination, "weight")
 
             try:
                 total_count+=1

@@ -42,7 +42,7 @@ def iterate_metrics(all_metrics):
     return traffic, crimes, crashes
 
 
-def create_output_file(total_count, success_count, error_count, traffic, crimes, crashes, config, iterate, city):
+def create_output_file(total_count, success_count, error_count, traffic, crimes, crashes, iterate, config, city, day):
 
     traffic_ms = (np.mean(traffic), np.std(traffic))
     crimes_ms = (np.mean(crimes), np.std(crimes))
@@ -56,25 +56,25 @@ def create_output_file(total_count, success_count, error_count, traffic, crimes,
     metrics['out_traffic'] = traffic
     etrics['out_crimes'] = crimes
     etrics['out_crashes'] = crashes
-    
+
     metrics['traffic'] = {'mean': traffic_ms[0], 'std': traffic_ms[1]}
     metrics['crimes'] = {'mean': crimes_ms[0], 'std': crimes_ms[1]}
     metrics['crashes'] = {'mean': crashes_ms[0], 'std': crashes_ms[1]}
 
-    with open('../output/data/{0}/{1}/{2}_metrics.json'.format(city, config, iterate), "w") as write_file:
+    with open('../output/data/{0}/{1}/{2}/{3}_metrics.json'.format(day, city, config, iterate), "w") as write_file:
         json.dump(metrics, write_file, indent=4)
 
 
-def run(network, begin, end, interval, route_log, replication, p, indx_config, config, iterate, city):
+def run(network, begin, end, interval, route_log, replication, p, iterate, indx_config, config, city, day):
 
-    logging.debug("Building road graph")         
+    logging.debug("Building road graph")
     road_network_graph = graph_mannager.build_road_graph(network)
     
     error_count, total_count = 0, 0
     logging.debug("Reading contextual data")
-    contextual = Contextual(city=city)
+    contextual = Contextual(city=city, day=day)
     
-    logging.debug("Running simulation now")    
+    logging.debug("Running simulation now")
     step = 1
     # The time at which the first re-routing will happen
     # The time at which a cycle for collecting travel time measurements begins
@@ -90,17 +90,18 @@ def run(network, begin, end, interval, route_log, replication, p, indx_config, c
         logging.debug("Simulation time %d" % step)
     
         if step >= travel_time_cycle_begin and travel_time_cycle_begin <= end and step%interval == 0:
+
             road_network_graph = traffic_mannager.update_context_on_roads(road_network_graph, contextual, step, indx_config, road_map)
             logging.debug("Updating travel time on roads at simulation time %d" % step)
 
-            error_count, total_count, acumulated_context = traffic_mannager.reroute_vehicles(road_network_graph, p, error_count, total_count, road_map)           
+            error_count, total_count, acumulated_context = traffic_mannager.reroute_vehicles(road_network_graph, p, error_count, total_count, indx_config, road_map)
             all_metrics += acumulated_context
 
         step += 1
 
     traffic, crimes, crashes = iterate_metrics(all_metrics)
 
-    create_output_file(total_count, total_count - error_count, error_count, traffic, crimes, crashes, config, iterate, city)
+    create_output_file(total_count, total_count - error_count, error_count, traffic, crimes, crashes, iterate, config, city, day)
     
     #time.sleep(10)
     logging.debug("Simulation finished")
@@ -108,7 +109,7 @@ def run(network, begin, end, interval, route_log, replication, p, indx_config, c
     sys.stdout.flush()
     #time.sleep(10)
         
-def start_simulation(sumo, scenario, network, begin, end, interval, output, summary, route_log, replication, p, indx_config, config, iterate, city):
+def start_simulation(sumo, scenario, network, begin, end, interval, output, summary, route_log, replication, p, iterate, indx_config, config, city, day):
     logging.debug("Finding unused port")
     
     unused_port_lock = sumo_mannager.UnusedPortLock()
@@ -124,7 +125,7 @@ def start_simulation(sumo, scenario, network, begin, end, interval, output, summ
             
     try:     
         traci.init(remote_port)    
-        run(network, begin, end, interval, route_log, replication, float(p), indx_config, config, iterate, city)
+        run(network, begin, end, interval, route_log, replication, float(p), iterate, indx_config, config, city, day)
     except Exception, e:
         logging.exception("Something bad happened")
     finally:
@@ -135,47 +136,53 @@ def start_simulation(sumo, scenario, network, begin, end, interval, output, summ
 def main():
     # Option handling
 
-    #for city in ['austin', 'chicago']:
-    for city in ['chicago']:
+    for day in ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']:
 
-        for indx_config, config in enumerate(['traffic', 'crimes', 'crashes', 'same', 'mtraffic', 'mcrimes', 'mcrashes']):
+        for city in ['austin', 'chicago']:
+            
+            if not os.path.exists('../output/data/{0}/{1}'.format(day, city)):
+                os.makedirs('../output/data/{0}/{1}'.format(day, city))
 
-            if not os.path.exists('../output/data/' + city):
-                os.makedirs('../output/data/' + city)
+            for indx_config, config in enumerate(['traffic', 'crimes', 'crashes', 'same', 'mtraffic', 'mcrimes', 'mcrashes', 'none']):
 
-            if not os.path.exists('../output/data/{0}/{1}'.format(city, config)):
-                os.makedirs('../output/data/{0}/{1}'.format(city, config))
+                if not os.path.exists('../output/data/{0}/{1}/{2}'.format(day, city, config)):
+                    os.makedirs('../output/data/{0}/{1}/{2}'.format(day, city, config))
 
-            for iterate in range(33):
+                for iterate in range(33):
 
-                pred_list = {}
+                    pred_list = {}
 
-                parser = OptionParser()
-                parser.add_option("-c", "--command", dest="command", default="sumo", help="The command used to run SUMO [default: %default]", metavar="COMMAND")
-                parser.add_option("-s", "--scenario", dest="scenario", default="../scenario/cfgs/{0}_{1}.sumo.cfg".format(city, iterate), help="A SUMO configuration file [default: %default]", metavar="FILE")
-                parser.add_option("-n", "--network", dest="network", default="../scenario/{0}.net.xml".format(city), help="A SUMO network definition file [default: %default]", metavar="FILE")    
-                parser.add_option("-b", "--begin", dest="begin", type="int", default=1500, action="store", help="The simulation time (s) at which the re-routing begins [default: %default]", metavar="BEGIN")
-                parser.add_option("-e", "--end", dest="end", type="int", default=7000, action="store", help="The simulation time (s) at which the re-routing ends [default: %default]", metavar="END")
-                parser.add_option("-i", "--interval", dest="interval", type="int", default=250, action="store", help="The interval (s) of classification [default: %default]", metavar="INTERVAL")
-                parser.add_option("-o", "--output", dest="output", default="../output/data/{0}/{1}/{2}_reroute.xml".format(city, config, iterate), help="The XML file at which the output must be written [default: %default]", metavar="FILE")
-                parser.add_option("-l", "--logfile", dest="logfile", default="sumo-launchd.log", help="log messages to logfile [default: %default]", metavar="FILE")
-                parser.add_option("-m", "--summary", dest="summary", default="../output/data/{0}/{1}/{2}_summary.xml".format(city, config, iterate), help="The XML file at which the summary output must be written [default: %default]", metavar="FILE")
-                parser.add_option("-r", "--route-log", dest="route_log", default="../output/data/{0}/{1}/{2}_route-log.txt".format(city, config, iterate), help="Log of the entire route of each vehicle [default: %default]", metavar="FILE")
-                parser.add_option("-t", "--replication", dest="replication", default="1", help="number of replications [default: %default]", metavar="REPLICATION")
-                parser.add_option("-p", "--percentage", dest="percentage", default="1", help="percentage of improvement on safety [default: %default]", metavar="REPLICATION")
+                    parser = OptionParser()
+                    parser.add_option("-c", "--command", dest="command", default="sumo", help="The command used to run SUMO [default: %default]", metavar="COMMAND")
+                    parser.add_option("-s", "--scenario", dest="scenario", default="../scenario/cfgs/{0}_{1}.sumo.cfg".format(city, iterate), help="A SUMO configuration file [default: %default]", metavar="FILE")
+                    parser.add_option("-n", "--network", dest="network", default="../scenario/{0}.net.xml".format(city), help="A SUMO network definition file [default: %default]", metavar="FILE")    
+                    parser.add_option("-b", "--begin", dest="begin", type="int", default=1500, action="store", help="The simulation time (s) at which the re-routing begins [default: %default]", metavar="BEGIN")
+                    parser.add_option("-e", "--end", dest="end", type="int", default=7000, action="store", help="The simulation time (s) at which the re-routing ends [default: %default]", metavar="END")
+                    parser.add_option("-i", "--interval", dest="interval", type="int", default=250, action="store", help="The interval (s) of classification [default: %default]", metavar="INTERVAL")
+                    parser.add_option("-o", "--output", dest="output", default="../output/data/{0}/{1}/{2}/{3}_reroute.xml".format(day, city, config, iterate), help="The XML file at which the output must be written [default: %default]", metavar="FILE")
+                    parser.add_option("-l", "--logfile", dest="logfile", default="sumo-launchd.log", help="log messages to logfile [default: %default]", metavar="FILE")
+                    parser.add_option("-m", "--summary", dest="summary", default="../output/data/{0}/{1}/{2}/{3}_summary.xml".format(day, city, config, iterate), help="The XML file at which the summary output must be written [default: %default]", metavar="FILE")
+                    parser.add_option("-r", "--route-log", dest="route_log", default="../output/data/{0}/{1}/{2}/{3}_route-log.txt".format(day, city, config, iterate), help="Log of the entire route of each vehicle [default: %default]", metavar="FILE")
+                    parser.add_option("-t", "--replication", dest="replication", default="1", help="number of replications [default: %default]", metavar="REPLICATION")
+                    parser.add_option("-p", "--percentage", dest="percentage", default="1", help="percentage of improvement on safety [default: %default]", metavar="REPLICATION")
 
-                (options, args) = parser.parse_args()
-                
-                logging.basicConfig(filename=options.logfile, level=logging.DEBUG)
-                logging.debug("Logging to %s" % options.logfile)
-                
-                if args:
-                    logging.warning("Superfluous command line arguments: \"%s\"" % " ".join(args))
+                    (options, args) = parser.parse_args()
                     
-                start_simulation(options.command, options.scenario, options.network, options.begin, options.end, options.interval, options.output, options.summary, options.route_log, options.replication, options.percentage, indx_config, config, iterate, city)
-                
-                if os.path.exists('sumo-launchd.log'):
-                    os.remove('sumo-launchd.log')
+                    logging.basicConfig(filename=options.logfile, level=logging.DEBUG)
+                    logging.debug("Logging to %s" % options.logfile)
+                    
+                    if args:
+                        logging.warning("Superfluous command line arguments: \"%s\"" % " ".join(args))
+                        
+                    start_simulation(options.command, options.scenario, options.network, options.begin, 
+                        options.end, options.interval, options.output, options.summary, options.route_log, 
+                        options.replication, options.percentage, iterate, indx_config, config, city, day)
+                    
+                    if os.path.exists('sumo-launchd.log'):
+                        os.remove('sumo-launchd.log')
+
+        # So that I may execute once and test the scenario
+        break
 
 if __name__ == "__main__":
     warnings.simplefilter("ignore")

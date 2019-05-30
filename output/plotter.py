@@ -53,7 +53,7 @@ class HarryPlotter:
 				rou = float(info['routeLength'])
 				tim = float(info['timeLoss'])
 
-				if dur > 10 and rou > 50:
+				if dur > 10 and rou > 100:
 					duration.append(dur)
 					route_length.append(rou)
 					time_loss.append(tim)
@@ -106,16 +106,16 @@ class HarryPlotter:
 				'crashes': (np.mean(mean_crashes), np.mean(std_crashes))}
 
 
-	def read_reroute_files(self, results):
+	def read_reroute_files(self, results, day):
 
 		for city in ['austin', 'chicago']:
 
-			for folder in listdir('data/' + city):
+			for folder in listdir('data/{0}/{1}'.format(day, city)):
 
 				accumulated = []
 
 				for iterate in range(33):
-					ires = self.read_xml_file('./data/{0}/{1}/{2}_reroute.xml'.format(city, folder, iterate))
+					ires = self.read_xml_file('./data/{0}/{1}/{2}/{3}_reroute.xml'.format(day, city, folder, iterate))
 					accumulated.append(self.get_metrics(ires))
 				
 				results['route_{0}_{1}'.format(city, folder)] = self.calculate_metrics(accumulated)
@@ -123,16 +123,16 @@ class HarryPlotter:
 		return results
 
 
-	def read_metric_files(self, results):
+	def read_metric_files(self, results, day):
 
 		for city in ['austin', 'chicago']:
 
-			for folder in listdir('data/' + city):
+			for folder in listdir('data/{0}/{1}'.format(day, city)):
 
 				accumulated = []
 
 				for iterate in range(33):
-					ires = self.read_json_file('./data/{0}/{1}/{2}_metrics.json'.format(city, folder, iterate))
+					ires = self.read_json_file('./data/{0}/{1}/{2}/{3}_metrics.json'.format(day, city, folder, iterate))
 					accumulated.append(ires)
 
 				results['context_{0}_{1}'.format(city, folder)] = self.calculate_contextual_metrics(accumulated)
@@ -140,17 +140,19 @@ class HarryPlotter:
 		return results
 
 
-	def save_calculation(self, results):
+	def save_calculation(self, results, day):
 
-		with open('all_results.json', "w") as write_file:
+		if not os.path.exists('results'):
+			os.makedirs('results')
+
+		with open('results/{0}_results.json'.format(day), "w") as write_file:
 			json.dump(results, write_file, indent=4)
 
 
-	def read_calculation(self):
+	def read_calculation(self, day):
 
-		with open('all_results.json', "r") as write_file:
+		with open('results/{0}_results.json'.format(day), "r") as write_file:
 			return json.load(write_file)
-
 
 
 	def separate_mean_std(self, just_to_plot, metric, keys_order):
@@ -174,7 +176,7 @@ class HarryPlotter:
 		return means, stds
 
 
-	def plot_bars(self, just_to_plot, metric):
+	def plot_bars(self, just_to_plot, metric, day):
 
 		if not os.path.exists('metric_plots'):
 		    os.makedirs('metric_plots')
@@ -198,7 +200,7 @@ class HarryPlotter:
 
 		ax.legend()
 
-		plt.savefig('metric_plots/{0}.pdf'.format(metric), bbox_inches="tight", format='pdf')
+		plt.savefig('metric_plots/{0}_{1}.pdf'.format(day, metric), bbox_inches="tight", format='pdf')
 
 
 	def filter_keys(self, results, sfilter='context'):
@@ -232,10 +234,11 @@ if __name__ == '__main__':
 	
 	results = {}
 
-	hp.read_reroute_files(results)
-	hp.read_metric_files(results)
-	hp.save_calculation(results)
+	for day in ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']:
+		hp.read_reroute_files(results, day)
+		hp.read_metric_files(results, day)
+		hp.save_calculation(results, day)
 
-	#results = hp.read_calculation()
+		#results = hp.read_calculation(day)
 
-	hp.plot(results)
+		hp.plot(results, day)
