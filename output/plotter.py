@@ -53,7 +53,7 @@ class HarryPlotter:
 				rou = float(info['routeLength'])
 				tim = float(info['timeLoss'])
 
-				if dur > 10 and rou > 100:
+				if dur > 10.00 and rou > 50.00:
 					duration.append(dur)
 					route_length.append(rou)
 					time_loss.append(tim)
@@ -242,3 +242,5 @@ if __name__ == '__main__':
 		#results = hp.read_calculation(day)
 
 		hp.plot(results, day)
+
+		break

@@ -11,7 +11,8 @@ def generate_routes():
 				"-s {2} ")
 
 	for city in ['austin', 'chicago']:
-		for i in range(33):
+		#for i in range(33):
+		for i in range(10):
 			os.system(command.format(city, i, i))
 
 

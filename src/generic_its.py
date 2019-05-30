@@ -139,6 +139,9 @@ def main():
     for day in ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']:
 
         for city in ['austin', 'chicago']:
+
+            if not os.path.exists('../output/data'):
+                os.makedirs('../output/data')
             
             if not os.path.exists('../output/data/{0}/{1}'.format(day, city)):
                 os.makedirs('../output/data/{0}/{1}'.format(day, city))
@@ -148,7 +151,8 @@ def main():
                 if not os.path.exists('../output/data/{0}/{1}/{2}'.format(day, city, config)):
                     os.makedirs('../output/data/{0}/{1}/{2}'.format(day, city, config))
 
-                for iterate in range(33):
+                #for iterate in range(33):
+                for iterate in range(10):
 
                     pred_list = {}
 
