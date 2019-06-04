@@ -12,7 +12,7 @@ def generate_routes():
 				"-p 0.3 --fringe-factor 50 --validate")
 
 	for city in ['austin', 'chicago']:
-		for i in range(15):
+		for i in range(20):
 			os.system(command.format(city, i, i))
 
 
@@ -22,7 +22,7 @@ def generate_cfg():
 		os.makedirs('cfgs')
 
 	for city in ['austin', 'chicago']:
-		for i in range(15):
+		for i in range(20):
 			file = open('cfgs/{0}_{1}.sumo.cfg'.format(city, i), 'w')
 			file.write(("<configuration>\n"
 					    "\t<input>\n"
@@ -32,4 +32,4 @@ def generate_cfg():
 						"</configuration>").format(city, i))
 
 generate_routes()
-#generate_cfg()
+generate_cfg()

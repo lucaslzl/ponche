@@ -114,7 +114,6 @@ class HarryPlotter:
 
 				accumulated = []
 
-				#for iterate in range(33):
 				for iterate in range(20):
 					ires = self.read_xml_file('./data/{0}/{1}/{2}/{3}_reroute.xml'.format(day, city, folder, iterate))
 					accumulated.append(self.get_metrics(ires))
@@ -132,7 +131,6 @@ class HarryPlotter:
 
 				accumulated = []
 
-				#for iterate in range(33):
 				for iterate in range(20):
 					ires = self.read_json_file('./data/{0}/{1}/{2}/{3}_metrics.json'.format(day, city, folder, iterate))
 					accumulated.append(ires)

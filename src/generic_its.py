@@ -151,8 +151,7 @@ def main():
                 if not os.path.exists('../output/data/{0}/{1}/{2}'.format(day, city, config)):
                     os.makedirs('../output/data/{0}/{1}/{2}'.format(day, city, config))
 
-                #for iterate in range(33):
-                for iterate in range(15):
+                for iterate in range(20):
 
                     pred_list = {}
 
@@ -184,9 +183,7 @@ def main():
                     
                     if os.path.exists('sumo-launchd.log'):
                         os.remove('sumo-launchd.log')
-
-        # So that I may execute once and test the scenario
-        break
+                        
 
 if __name__ == "__main__":
     warnings.simplefilter("ignore")

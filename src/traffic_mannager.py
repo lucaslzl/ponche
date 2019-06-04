@@ -52,8 +52,8 @@ def update_context_on_roads(graph, contextual, step, indx_config, road_map):
         update_road_map(road_map, str(road), metrics)
 
         for successor_road in graph.successors(road):
-            #graph.adj[road][successor_road]["weight"] = (graph.adj[road][successor_road]["weight"] + weight) / 2.0
-            graph.adj[road][successor_road]["weight"] = weight
+            graph.adj[road][successor_road]["weight"] = (graph.adj[road][successor_road]["weight"] + weight) / 2.0
+            #graph.adj[road][successor_road]["weight"] = weight
 
     return graph
 
@@ -96,11 +96,8 @@ def reroute_vehicles(graph, p, error_count, total_count, indx_config, road_map):
                     context_metrics['crashes'] += road_map[vertex]['crashes']
 
                 acumulated_context.append(context_metrics)
-
-                #traci.vehicle.rerouteTraveltime(vehicle)
             except Exception, e:
                 error_count+=1
-                #print('\n\n ROUTE: {0} \n SHORTEST: {1}\n\n'.format(str(route), str(shortest_path)))
 
     return error_count, total_count, acumulated_context
 
