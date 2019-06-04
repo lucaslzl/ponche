@@ -11,7 +11,7 @@ class HarryPlotter:
 	METRIC_UNIT = {'duration' : 'seconds',
 					'route_length': 'meters',
 					'time_loss': 'seconds',
-					'traffic' : 'vehicle density',
+					'traffic' : 'traffic load score',
 					'crimes': 'insecurity level',
 					'crashes': 'accident probability'}
 
@@ -114,7 +114,8 @@ class HarryPlotter:
 
 				accumulated = []
 
-				for iterate in range(33):
+				#for iterate in range(33):
+				for iterate in range(20):
 					ires = self.read_xml_file('./data/{0}/{1}/{2}/{3}_reroute.xml'.format(day, city, folder, iterate))
 					accumulated.append(self.get_metrics(ires))
 				
@@ -131,7 +132,8 @@ class HarryPlotter:
 
 				accumulated = []
 
-				for iterate in range(33):
+				#for iterate in range(33):
+				for iterate in range(20):
 					ires = self.read_json_file('./data/{0}/{1}/{2}/{3}_metrics.json'.format(day, city, folder, iterate))
 					accumulated.append(ires)
 
@@ -185,14 +187,14 @@ class HarryPlotter:
 		ax = plt.subplot(111)
 
 		cities = ['austin', 'chicago']
-		keys_order = ['traffic', 'crimes', 'crashes', 'same', 'mtraffic', 'mcrimes', 'mcrashes']
+		keys_order = ['traffic', 'crimes', 'crashes', 'same', 'mtraffic', 'mcrimes', 'mcrashes', 'baseline']
 
 		xlabels = keys_order + keys_order
 
 		means, stds = self.separate_mean_std(just_to_plot, metric, keys_order)
 		
-		plt.plot(np.arange(0, 7), means[0:7], 'o-.', color='#1d4484', label='Austin')
-		plt.plot(np.arange(7, 14), means[7:14], 'o-.', color='#7c0404', label='Chicago')
+		plt.plot(np.arange(0, 8), means[0:8], 'o-.', color='#1d4484', label='Austin')
+		plt.plot(np.arange(8, 16), means[8:16], 'o-.', color='#7c0404', label='Chicago')
 		
 		plt.xlabel('Execution Configuration')
 		plt.ylabel('{0} ({1})'.format(metric.replace('_', ' ').capitalize(), self.METRIC_UNIT[metric]))
@@ -216,16 +218,16 @@ class HarryPlotter:
 		return filtered_dict, metrics
 
 
-	def plot(self, results):
+	def plot(self, results, day):
 		
 		contextual, cmetrics = self.filter_keys(results)
 		mobility, mmetrics = self.filter_keys(results, sfilter='route')
 
 		for metric in cmetrics:
-			self.plot_bars(contextual, metric)
+			self.plot_bars(contextual, metric, day)
 
 		for metric in mmetrics:
-			self.plot_bars(mobility, metric)
+			self.plot_bars(mobility, metric, day)
 
 
 if __name__ == '__main__':
@@ -235,11 +237,11 @@ if __name__ == '__main__':
 	results = {}
 
 	for day in ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']:
-		hp.read_reroute_files(results, day)
-		hp.read_metric_files(results, day)
-		hp.save_calculation(results, day)
+		#hp.read_reroute_files(results, day)
+		#hp.read_metric_files(results, day)
+		#hp.save_calculation(results, day)
 
-		#results = hp.read_calculation(day)
+		results = hp.read_calculation(day)
 
 		hp.plot(results, day)
 

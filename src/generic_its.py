@@ -54,8 +54,8 @@ def create_output_file(total_count, success_count, error_count, traffic, crimes,
     metrics['error_count'] = error_count
 
     metrics['out_traffic'] = traffic
-    etrics['out_crimes'] = crimes
-    etrics['out_crashes'] = crashes
+    metrics['out_crimes'] = crimes
+    metrics['out_crashes'] = crashes
 
     metrics['traffic'] = {'mean': traffic_ms[0], 'std': traffic_ms[1]}
     metrics['crimes'] = {'mean': crimes_ms[0], 'std': crimes_ms[1]}
@@ -139,20 +139,20 @@ def main():
     for day in ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']:
 
         for city in ['austin', 'chicago']:
-
+        
             if not os.path.exists('../output/data'):
                 os.makedirs('../output/data')
             
             if not os.path.exists('../output/data/{0}/{1}'.format(day, city)):
                 os.makedirs('../output/data/{0}/{1}'.format(day, city))
 
-            for indx_config, config in enumerate(['traffic', 'crimes', 'crashes', 'same', 'mtraffic', 'mcrimes', 'mcrashes', 'none']):
+            for indx_config, config in enumerate(['traffic', 'crimes', 'crashes', 'same', 'mtraffic', 'mcrimes', 'mcrashes', 'baseline']):
 
                 if not os.path.exists('../output/data/{0}/{1}/{2}'.format(day, city, config)):
                     os.makedirs('../output/data/{0}/{1}/{2}'.format(day, city, config))
 
                 #for iterate in range(33):
-                for iterate in range(10):
+                for iterate in range(15):
 
                     pred_list = {}
 

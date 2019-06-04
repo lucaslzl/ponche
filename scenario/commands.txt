@@ -1,4 +1,4 @@
-netconvert --osm-files chicago.osm --output-file chicago_map.net.xml --geometry.remove --roundabouts.guess --ramps.guess --junctions.join --tls.guess-signals --tls.discard-simple --tls.join
+netconvert --osm-files chicago.osm --output-file chicago.net.xml --geometry.remove --roundabouts.guess --ramps.guess --junctions.join --tls.guess-signals --tls.discard-simple --tls.join
 
 python /usr/share/sumo/tools/randomTrips.py --validate -n /home/lucaszl/Documentos/nottodownload/securesimulation/sumo/chicago.net.xml -o chicago.trips.xml
 

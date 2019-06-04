@@ -8,11 +8,11 @@ def generate_routes():
 	command = ("python /usr/share/sumo/tools/randomTrips.py --validate "
 				"-n /home/lucaszl/Documentos/Projetos/securesimulation/scenario/{0}.net.xml "
 				"-o trips/{0}_{1}.trips.xml "
-				"-s {2} ")
+				"-s {2} "
+				"-p 0.3 --fringe-factor 50 --validate")
 
 	for city in ['austin', 'chicago']:
-		#for i in range(33):
-		for i in range(10):
+		for i in range(15):
 			os.system(command.format(city, i, i))
 
 
@@ -22,7 +22,7 @@ def generate_cfg():
 		os.makedirs('cfgs')
 
 	for city in ['austin', 'chicago']:
-		for i in range(33):
+		for i in range(15):
 			file = open('cfgs/{0}_{1}.sumo.cfg'.format(city, i), 'w')
 			file.write(("<configuration>\n"
 					    "\t<input>\n"
