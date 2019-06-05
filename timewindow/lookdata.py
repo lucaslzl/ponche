@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import gmplot
 from sklearn.cluster import DBSCAN
 import random
+import json
 
 
 def remove_invalid_coord(df): #[-90; 90]
@@ -93,20 +94,21 @@ def see_density():
 
 
 def colors(n):
-		ret = []
-		for i in range(n):
-			r = int(random.random() * 256)
-			g = int(random.random() * 256)
-			b = int(random.random() * 256)
-			r = int(r) % 256
-			g = int(g) % 256
-			b = int(b) % 256
-			ret.append('#{:02X}{:02X}{:02X}'.format(r,g,b)) 
-		return ret
+	ret = []
+	for i in range(n):
+		r = int(random.random() * 256)
+		g = int(random.random() * 256)
+		b = int(random.random() * 256)
+		r = int(r) % 256
+		g = int(g) % 256
+		b = int(b) % 256
+		ret.append('#{:02X}{:02X}{:02X}'.format(r,g,b)) 
+	return ret
 
 
-def plot_dots(clusters, day, city, types):
+def plot_heat(clusters, day, city, types):
 
+	plt.clf()
 	gmap = gmplot.GoogleMapPlotter(clusters.iloc[0]['lat'], clusters.iloc[0]['lon'], 11)
 
 	lats, longs = [], []
@@ -132,7 +134,71 @@ def see_distribution():
 		df = df.drop(['type', 'hour', 'month', 'export'], axis=1)
 		clustering = DBSCAN(eps=0.001, min_samples=3).fit_predict(df)
 		df['cluster'] = clustering
-		plot_dots(df.query('cluster != -1'), day, city, types)
+		plot_heat(df.query('cluster != -1'), day, city, types)
 
 
-see_distribution()
+def format_clusters(data):
+
+	clusters = []
+	clusters.append([])
+	lastid = 0
+
+	data = data.query('cluster > -1')
+
+	for indx, row in data.iterrows():
+		if row['cluster'] > lastid:
+			clusters.append([])
+			lastid = row['cluster']
+		clusters[-1].append((row['lat'], row['lon']))
+
+	return clusters
+
+
+def get_coords(cluster):
+
+	lat, lon = [], []
+	for i in cluster:
+		lat.append(i[0])
+		lon.append(i[1])
+	return lat, lon
+
+
+def plot_dots(clusters, day, city, types, each):
+
+	plt.clf()
+	if len(clusters) > 0 and len(clusters[0]) > 0:
+		gmap = gmplot.GoogleMapPlotter(float(clusters[0][0][0]), float(clusters[0][0][1]), 11)
+
+		color_list = colors(len(clusters))
+		indx = 0
+		for cluster in clusters:
+
+			lat, lon = get_coords(cluster)
+			gmap.scatter(lat, lon, color_list[indx], edge_width=5, marker=False)
+			indx += 1
+			#break
+
+		if not os.path.exists('plottest'):
+			os.makedirs('plottest')
+		gmap.draw('plottest/{0}_{1}_{2}_{3}_dots.html'.format(city, types, day, each))
+
+
+def load_clusters(day):
+		with open(str(os.path.dirname(os.path.abspath(__file__)))+"/clusters/" + str(day) + '.json', "r") as file:
+			return json.load(file)
+
+
+def see_maps():
+
+	city='austin'
+	types='crashes'
+	day='monday'
+
+	clusters = load_clusters(day)['{0}_2018_{1}'.format(types, city)]['January']['unkown']
+
+	for each in clusters:
+		plot_dots(clusters[each], day, city, types, each)
+
+
+
+see_maps()
