@@ -9,7 +9,7 @@ def generate_routes():
 				"-n /home/lucaszl/Documentos/Projetos/securesimulation/scenario/{0}.net.xml "
 				"-o trips/{0}_{1}.trips.xml "
 				"-s {2} "
-				"-p 0.3 --fringe-factor 50 --validate")
+				"-p 0.6 --fringe-factor 50 --validate")
 
 	for city in ['austin', 'chicago']:
 		for i in range(20):

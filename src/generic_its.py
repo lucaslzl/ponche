@@ -22,6 +22,7 @@ import graph_mannager
 #import log_mannager
 import traffic_mannager
 import traci
+import time
 
 import inspect
 current_dir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
@@ -83,6 +84,8 @@ def run(network, begin, end, interval, route_log, replication, p, iterate, indx_
     road_map = {}
     all_metrics = []
 
+    start_time = time.time()
+
     while step == 1 or traci.simulation.getMinExpectedNumber() > 0:
         logging.debug("Minimum expected number of vehicles: %d" % traci.simulation.getMinExpectedNumber())
         traci.simulationStep()
@@ -102,6 +105,9 @@ def run(network, begin, end, interval, route_log, replication, p, iterate, indx_
     traffic, crimes, crashes = iterate_metrics(all_metrics)
 
     create_output_file(total_count, total_count - error_count, error_count, traffic, crimes, crashes, iterate, config, city, day)
+
+    final_time = time.time()
+    print('########### TIME: ', float(final_time - start_time))
     
     #time.sleep(10)
     logging.debug("Simulation finished")
