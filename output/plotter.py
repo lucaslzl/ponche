@@ -187,12 +187,14 @@ class HarryPlotter:
 		cities = ['austin', 'chicago']
 		keys_order = ['traffic', 'crimes', 'crashes', 'same', 'mtraffic', 'mcrimes', 'mcrashes', 'baseline']
 
-		xlabels = keys_order + keys_order
+		xlabels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'Baseline', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'Baseline']
 
 		means, stds = self.separate_mean_std(just_to_plot, metric, keys_order)
 		
 		plt.plot(np.arange(0, 8), means[0:8], 'o-.', color='#1d4484', label='Austin')
+		plt.errorbar(np.arange(0, 8), stds[0:8], xerr=0.2, yerr=0.4, color='#7c0404')
 		plt.plot(np.arange(8, 16), means[8:16], 'o-.', color='#7c0404', label='Chicago')
+		plt.errorbar(np.arange(8, 16), stds[8:16], xerr=0.2, yerr=0.4, color='#7c0404')
 		
 		plt.xlabel('Execution Configuration')
 		plt.ylabel('{0} ({1})'.format(metric.replace('_', ' ').capitalize(), self.METRIC_UNIT[metric]))
@@ -235,9 +237,9 @@ if __name__ == '__main__':
 	results = {}
 
 	for day in ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']:
-		#hp.read_reroute_files(results, day)
-		#hp.read_metric_files(results, day)
-		#hp.save_calculation(results, day)
+		hp.read_reroute_files(results, day)
+		hp.read_metric_files(results, day)
+		hp.save_calculation(results, day)
 
 		results = hp.read_calculation(day)
 
