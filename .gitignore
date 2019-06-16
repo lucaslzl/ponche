@@ -7,4 +7,6 @@ sumo/chicago\.net\.xml
 
 timewindow/plots/*
 
+output/data/*
+
 *.pyc

@@ -244,5 +244,3 @@ if __name__ == '__main__':
 		results = hp.read_calculation(day)
 
 		hp.plot(results, day)
-
-		break
