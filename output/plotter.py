@@ -4,6 +4,8 @@ from os import listdir
 import numpy as np
 import matplotlib.pyplot as plt
 import json
+import scipy.stats
+import math
 
 
 class HarryPlotter:
@@ -32,12 +34,21 @@ class HarryPlotter:
 			return json.load(file)
 
 
-	def mean_confidence_interval(data, confidence=0.95):
+	def mean_confidence_interval(self, data, confidence=0.95):
+		a = 1.0 * np.array(data)
+		n = len(a)
+		m, se = np.mean(a), scipy.stats.sem(a)
+		#h = se * scipy.stats.t.ppf((1 + confidence) / 2., n-1)
+		h = 1.96 * (se/math.sqrt(140))
+		return m, h, m-h, m+h
+
+
+	def mean_confidence_interval_day(self, data, confidence=0.95):
 		a = 1.0 * np.array(data)
 		n = len(a)
 		m, se = np.mean(a), scipy.stats.sem(a)
 		h = se * scipy.stats.t.ppf((1 + confidence) / 2., n-1)
-		return m, m-h, m+h
+		return (m, h)
 
 
 	def get_metrics(self, ires):
@@ -67,43 +78,31 @@ class HarryPlotter:
 
 	def calculate_metrics(self, accumulated):
 
-		mean_duration, mean_route_length, mean_time_loss = [], [], []
-		std_duration, std_route_length, std_time_loss = [], [], []
+		duration, route_length, time_loss = [], [], []
 
 
 		for ires in accumulated:
-			mean_duration.append(ires['duration'][0])
-			std_duration.append(ires['duration'][1])
-			
-			mean_route_length.append(ires['route_length'][0])
-			std_route_length.append(ires['route_length'][1])
-			
-			mean_time_loss.append(ires['time_loss'][0])
-			std_time_loss.append(ires['time_loss'][1])
+			duration.append(ires['duration'][0])
+			route_length.append(ires['route_length'][0])
+			time_loss.append(ires['time_loss'][0])
 
-		return {'duration': (np.mean(mean_duration), np.mean(std_duration)),
-				'route_length': (np.mean(mean_route_length), np.mean(std_route_length)),
-				'time_loss': (np.mean(mean_time_loss), np.mean(std_time_loss))}
+		return {'duration': self.mean_confidence_interval_day(duration),
+				'route_length': self.mean_confidence_interval_day(route_length),
+				'time_loss': self.mean_confidence_interval_day(time_loss)}
 
 
 	def calculate_contextual_metrics(self, accumulated):
 
-		mean_traffic, mean_crimes, mean_crashes = [], [], []
-		std_traffic, std_crimes, std_crashes = [], [], []
+		traffic, crimes, crashes = [], [], []
 
 		for ires in accumulated:
-			mean_traffic.append(ires['traffic']['mean'])
-			std_traffic.append(ires['traffic']['std'])
+			traffic.append(ires['traffic']['mean'])
+			crimes.append(ires['crimes']['mean'])
+			crashes.append(ires['crashes']['mean'])
 
-			mean_crimes.append(ires['crimes']['mean'])
-			std_crimes.append(ires['crimes']['std'])
-
-			mean_crashes.append(ires['crashes']['mean'])
-			std_crashes.append(ires['crashes']['std'])
-
-		return {'traffic': (np.mean(mean_traffic), np.mean(std_traffic)),
-				'crimes': (np.mean(mean_crimes), np.mean(std_crimes)),
-				'crashes': (np.mean(mean_crashes), np.mean(std_crashes))}
+		return {'traffic': self.mean_confidence_interval_day(traffic),
+				'crimes': self.mean_confidence_interval_day(crimes),
+				'crashes': self.mean_confidence_interval_day(crashes)}
 
 
 	def read_reroute_files(self, results, day):
@@ -184,7 +183,8 @@ class HarryPlotter:
 
 					all_values.append(results[day][key][cm][0])
 
-				formatted_res_cont[key][cm] = (np.mean(all_values), np.std(all_values))
+				mean, height, hp, hm = self.mean_confidence_interval(all_values)
+				formatted_res_cont[key][cm] = (mean, height)
 
 		for key in mobility:
 
@@ -198,7 +198,8 @@ class HarryPlotter:
 
 					all_values.append(results[day][key][mm][0])
 
-				formatted_res_mob[key][mm] = (np.mean(all_values), np.std(all_values))
+				mean, height, hp, hm = self.mean_confidence_interval(all_values)
+				formatted_res_mob[key][mm] = (mean, height)
 
 		return formatted_res_cont, formatted_res_mob
 
@@ -224,7 +225,7 @@ class HarryPlotter:
 		return means, stds
 
 
-	def plot_bars(self, just_to_plot, metric):
+	def plot_dots(self, just_to_plot, metric):
 
 		if not os.path.exists('metric_plots'):
 		    os.makedirs('metric_plots')
@@ -253,6 +254,35 @@ class HarryPlotter:
 		plt.savefig('metric_plots/{0}.pdf'.format(metric), bbox_inches="tight", format='pdf')
 
 
+	def plot_dots_day(self, just_to_plot, metric, day):
+
+		if not os.path.exists('metric_plots'):
+		    os.makedirs('metric_plots')
+
+		plt.clf()
+		ax = plt.subplot(111)
+
+		cities = ['austin', 'chicago']
+		keys_order = ['traffic', 'crimes', 'crashes', 'same', 'mtraffic', 'mcrimes', 'mcrashes', 'baseline']
+
+		xlabels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'Baseline', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'Baseline']
+
+		means, stds = self.separate_mean_std(just_to_plot, metric, keys_order)
+		
+		#plt.plot(np.arange(0, 8), means[0:8], 'o-.', color='#1d4484', label='Austin')
+		plt.errorbar(np.arange(0, 8), means[0:8], yerr=stds[0:8], fmt='o-.', color='#1d4484', label='Austin', capsize=5)
+		#plt.plot(np.arange(8, 16), means[8:16], 'o-.', color='#7c0404', label='Chicago')
+		plt.errorbar(np.arange(8, 16), means[8:16], yerr=stds[8:16], fmt='o-.', color='#7c0404', label='Chicago', capsize=5)
+		
+		plt.xlabel('Execution Configuration')
+		plt.ylabel('{0} ({1})'.format(metric.replace('_', ' ').capitalize(), self.METRIC_UNIT[metric]))
+		plt.xticks(np.arange(0, len(xlabels)), xlabels, rotation=50)
+
+		ax.legend()
+
+		plt.savefig('metric_plots/{0}_{1}.pdf'.format(day, metric), bbox_inches="tight", format='pdf')
+
+
 	def plot(self, results):
 		
 		contextual, cmetrics = self.filter_keys(results['sunday'])
@@ -261,10 +291,22 @@ class HarryPlotter:
 		contextual, mobility = self.format_plot_pattern(results, contextual, cmetrics, mobility, mmetrics)
 
 		for metric in cmetrics:
-			self.plot_bars(contextual, metric)
+			self.plot_dots(contextual, metric)
 
 		for metric in mmetrics:
-			self.plot_bars(mobility, metric)
+			self.plot_dots(mobility, metric)
+
+
+	def plot_day(self, results, day):
+		
+		contextual, cmetrics = self.filter_keys(results)
+		mobility, mmetrics = self.filter_keys(results, sfilter='route')
+
+		for metric in cmetrics:
+			self.plot_dots_day(contextual, metric, day)
+
+		for metric in mmetrics:
+			self.plot_dots_day(mobility, metric, day)
 
 
 if __name__ == '__main__':
@@ -274,10 +316,11 @@ if __name__ == '__main__':
 	results = {}
 
 	for day in ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']:
-		#hp.read_reroute_files(results, day)
-		#hp.read_metric_files(results, day)
-		#hp.save_calculation(results, day)
+		hp.read_reroute_files(results, day)
+		hp.read_metric_files(results, day)
+		hp.save_calculation(results, day)
 		results[day] = hp.read_calculation(day)
+		hp.plot_day(results[day], day)
 	
 	hp.plot(results)
 
