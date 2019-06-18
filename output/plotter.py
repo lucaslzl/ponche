@@ -155,6 +155,54 @@ class HarryPlotter:
 			return json.load(write_file)
 
 
+	def filter_keys(self, results, sfilter='context'):
+
+		filtered_keys = [x for x in results.keys() if sfilter in x]
+
+		filtered_dict = {}
+		for f in filtered_keys:
+			filtered_dict[f] = results[f]
+		
+		metrics = results[filtered_keys[0]].keys()
+
+		return filtered_dict, metrics
+
+	def format_plot_pattern(self, results, contextual, cmetrics, mobility, mmetrics):
+
+		formatted_res_cont = {}
+		formatted_res_mob = {}
+
+		for key in contextual:
+
+			formatted_res_cont[key] = {}
+
+			for cm in cmetrics:
+
+				all_values = []
+
+				for day in ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']:
+
+					all_values.append(results[day][key][cm][0])
+
+				formatted_res_cont[key][cm] = (np.mean(all_values), np.std(all_values))
+
+		for key in mobility:
+
+			formatted_res_mob[key] = {}
+
+			for mm in mmetrics:
+
+				all_values = []
+
+				for day in ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']:
+
+					all_values.append(results[day][key][mm][0])
+
+				formatted_res_mob[key][mm] = (np.mean(all_values), np.std(all_values))
+
+		return formatted_res_cont, formatted_res_mob
+
+
 	def separate_mean_std(self, just_to_plot, metric, keys_order):
 
 		means, stds = [], []
@@ -176,7 +224,7 @@ class HarryPlotter:
 		return means, stds
 
 
-	def plot_bars(self, just_to_plot, metric, day):
+	def plot_bars(self, just_to_plot, metric):
 
 		if not os.path.exists('metric_plots'):
 		    os.makedirs('metric_plots')
@@ -191,10 +239,10 @@ class HarryPlotter:
 
 		means, stds = self.separate_mean_std(just_to_plot, metric, keys_order)
 		
-		plt.plot(np.arange(0, 8), means[0:8], 'o-.', color='#1d4484', label='Austin')
-		plt.errorbar(np.arange(0, 8), stds[0:8], xerr=0.2, yerr=0.4, color='#7c0404')
-		plt.plot(np.arange(8, 16), means[8:16], 'o-.', color='#7c0404', label='Chicago')
-		plt.errorbar(np.arange(8, 16), stds[8:16], xerr=0.2, yerr=0.4, color='#7c0404')
+		#plt.plot(np.arange(0, 8), means[0:8], 'o-.', color='#1d4484', label='Austin')
+		plt.errorbar(np.arange(0, 8), means[0:8], yerr=stds[0:8], fmt='o-.', color='#1d4484', label='Austin', capsize=5)
+		#plt.plot(np.arange(8, 16), means[8:16], 'o-.', color='#7c0404', label='Chicago')
+		plt.errorbar(np.arange(8, 16), means[8:16], yerr=stds[8:16], fmt='o-.', color='#7c0404', label='Chicago', capsize=5)
 		
 		plt.xlabel('Execution Configuration')
 		plt.ylabel('{0} ({1})'.format(metric.replace('_', ' ').capitalize(), self.METRIC_UNIT[metric]))
@@ -202,32 +250,21 @@ class HarryPlotter:
 
 		ax.legend()
 
-		plt.savefig('metric_plots/{0}_{1}.pdf'.format(day, metric), bbox_inches="tight", format='pdf')
+		plt.savefig('metric_plots/{0}.pdf'.format(metric), bbox_inches="tight", format='pdf')
 
 
-	def filter_keys(self, results, sfilter='context'):
-
-		filtered_keys = [x for x in results.keys() if sfilter in x]
-
-		filtered_dict = {}
-		for f in filtered_keys:
-			filtered_dict[f] = results[f]
+	def plot(self, results):
 		
-		metrics = results[filtered_keys[0]].keys()
+		contextual, cmetrics = self.filter_keys(results['sunday'])
+		mobility, mmetrics = self.filter_keys(results['sunday'], sfilter='route')
 
-		return filtered_dict, metrics
-
-
-	def plot(self, results, day):
-		
-		contextual, cmetrics = self.filter_keys(results)
-		mobility, mmetrics = self.filter_keys(results, sfilter='route')
+		contextual, mobility = self.format_plot_pattern(results, contextual, cmetrics, mobility, mmetrics)
 
 		for metric in cmetrics:
-			self.plot_bars(contextual, metric, day)
+			self.plot_bars(contextual, metric)
 
 		for metric in mmetrics:
-			self.plot_bars(mobility, metric, day)
+			self.plot_bars(mobility, metric)
 
 
 if __name__ == '__main__':
@@ -237,10 +274,10 @@ if __name__ == '__main__':
 	results = {}
 
 	for day in ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']:
-		hp.read_reroute_files(results, day)
-		hp.read_metric_files(results, day)
-		hp.save_calculation(results, day)
+		#hp.read_reroute_files(results, day)
+		#hp.read_metric_files(results, day)
+		#hp.save_calculation(results, day)
+		results[day] = hp.read_calculation(day)
+	
+	hp.plot(results)
 
-		results = hp.read_calculation(day)
-
-		hp.plot(results, day)
