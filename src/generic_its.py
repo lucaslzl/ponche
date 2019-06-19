@@ -13,6 +13,7 @@ import time
 import numpy as np
 import json
 import warnings
+import multiprocessing as mp
 
 from k_shortest_paths import k_shortest_paths
 from optparse import OptionParser
@@ -138,6 +139,40 @@ def start_simulation(sumo, scenario, network, begin, end, interval, output, summ
         logging.exception("Terminating SUMO")  
         sumo_mannager.terminate_sumo(sumo)
         unused_port_lock.__exit__()
+
+
+def parallel_main_loop(city, iterate, config, day, indx_config):
+    
+    pred_list = {}
+
+    parser = OptionParser()
+    parser.add_option("-c", "--command", dest="command", default="sumo", help="The command used to run SUMO [default: %default]", metavar="COMMAND")
+    parser.add_option("-s", "--scenario", dest="scenario", default="../scenario/cfgs/{0}_{1}.sumo.cfg".format(city, iterate), help="A SUMO configuration file [default: %default]", metavar="FILE")
+    parser.add_option("-n", "--network", dest="network", default="../scenario/{0}.net.xml".format(city), help="A SUMO network definition file [default: %default]", metavar="FILE")    
+    parser.add_option("-b", "--begin", dest="begin", type="int", default=1500, action="store", help="The simulation time (s) at which the re-routing begins [default: %default]", metavar="BEGIN")
+    parser.add_option("-e", "--end", dest="end", type="int", default=7000, action="store", help="The simulation time (s) at which the re-routing ends [default: %default]", metavar="END")
+    parser.add_option("-i", "--interval", dest="interval", type="int", default=250, action="store", help="The interval (s) of classification [default: %default]", metavar="INTERVAL")
+    parser.add_option("-o", "--output", dest="output", default="../output/data/{0}/{1}/{2}/{3}_reroute.xml".format(day, city, config, iterate), help="The XML file at which the output must be written [default: %default]", metavar="FILE")
+    parser.add_option("-l", "--logfile", dest="logfile", default="sumo-launchd.log", help="log messages to logfile [default: %default]", metavar="FILE")
+    parser.add_option("-m", "--summary", dest="summary", default="../output/data/{0}/{1}/{2}/{3}_summary.xml".format(day, city, config, iterate), help="The XML file at which the summary output must be written [default: %default]", metavar="FILE")
+    parser.add_option("-r", "--route-log", dest="route_log", default="../output/data/{0}/{1}/{2}/{3}_route-log.txt".format(day, city, config, iterate), help="Log of the entire route of each vehicle [default: %default]", metavar="FILE")
+    parser.add_option("-t", "--replication", dest="replication", default="1", help="number of replications [default: %default]", metavar="REPLICATION")
+    parser.add_option("-p", "--percentage", dest="percentage", default="1", help="percentage of improvement on safety [default: %default]", metavar="REPLICATION")
+
+    (options, args) = parser.parse_args()
+    
+    logging.basicConfig(filename=options.logfile, level=logging.DEBUG)
+    logging.debug("Logging to %s" % options.logfile)
+    
+    if args:
+        logging.warning("Superfluous command line arguments: \"%s\"" % " ".join(args))
+        
+    start_simulation(options.command, options.scenario, options.network, options.begin, 
+        options.end, options.interval, options.output, options.summary, options.route_log, 
+        options.replication, options.percentage, iterate, indx_config, config, city, day)
+    
+    if os.path.exists('sumo-launchd.log'):
+        os.remove('sumo-launchd.log')
         
 def main():
     # Option handling
@@ -152,45 +187,24 @@ def main():
             if not os.path.exists('../output/data/{0}/{1}'.format(day, city)):
                 os.makedirs('../output/data/{0}/{1}'.format(day, city))
 
-            for indx_config, config in enumerate(['traffic', 'crimes', 'crashes', 'same', 'mtraffic', 'mcrimes', 'mcrashes', 'baseline']):
+            for indx_config, config in enumerate(['traffic', 'crimes', 'crashes', 'same', 'mtraffic', 'mcrimes', 'mcrashes', 'maxtraffic', 'maxcrimes', 'maxcrashes', 'baseline']):
 
                 if not os.path.exists('../output/data/{0}/{1}/{2}'.format(day, city, config)):
                     os.makedirs('../output/data/{0}/{1}/{2}'.format(day, city, config))
 
-                for iterate in range(20):
+                #for iterate in range(20):
+                processes = [mp.Process(target=parallel_main_loop, args=(city, iterate, config, day, indx_config)) for iterate in range(20)]
 
-                    pred_list = {}
+                # Run processes
+                for p in processes:
+                    p.start()
 
-                    parser = OptionParser()
-                    parser.add_option("-c", "--command", dest="command", default="sumo", help="The command used to run SUMO [default: %default]", metavar="COMMAND")
-                    parser.add_option("-s", "--scenario", dest="scenario", default="../scenario/cfgs/{0}_{1}.sumo.cfg".format(city, iterate), help="A SUMO configuration file [default: %default]", metavar="FILE")
-                    parser.add_option("-n", "--network", dest="network", default="../scenario/{0}.net.xml".format(city), help="A SUMO network definition file [default: %default]", metavar="FILE")    
-                    parser.add_option("-b", "--begin", dest="begin", type="int", default=1500, action="store", help="The simulation time (s) at which the re-routing begins [default: %default]", metavar="BEGIN")
-                    parser.add_option("-e", "--end", dest="end", type="int", default=7000, action="store", help="The simulation time (s) at which the re-routing ends [default: %default]", metavar="END")
-                    parser.add_option("-i", "--interval", dest="interval", type="int", default=250, action="store", help="The interval (s) of classification [default: %default]", metavar="INTERVAL")
-                    parser.add_option("-o", "--output", dest="output", default="../output/data/{0}/{1}/{2}/{3}_reroute.xml".format(day, city, config, iterate), help="The XML file at which the output must be written [default: %default]", metavar="FILE")
-                    parser.add_option("-l", "--logfile", dest="logfile", default="sumo-launchd.log", help="log messages to logfile [default: %default]", metavar="FILE")
-                    parser.add_option("-m", "--summary", dest="summary", default="../output/data/{0}/{1}/{2}/{3}_summary.xml".format(day, city, config, iterate), help="The XML file at which the summary output must be written [default: %default]", metavar="FILE")
-                    parser.add_option("-r", "--route-log", dest="route_log", default="../output/data/{0}/{1}/{2}/{3}_route-log.txt".format(day, city, config, iterate), help="Log of the entire route of each vehicle [default: %default]", metavar="FILE")
-                    parser.add_option("-t", "--replication", dest="replication", default="1", help="number of replications [default: %default]", metavar="REPLICATION")
-                    parser.add_option("-p", "--percentage", dest="percentage", default="1", help="percentage of improvement on safety [default: %default]", metavar="REPLICATION")
+                # Exit the completed processes
+                for p in processes:
+                    p.join()
 
-                    (options, args) = parser.parse_args()
                     
-                    logging.basicConfig(filename=options.logfile, level=logging.DEBUG)
-                    logging.debug("Logging to %s" % options.logfile)
                     
-                    if args:
-                        logging.warning("Superfluous command line arguments: \"%s\"" % " ".join(args))
-                        
-                    start_simulation(options.command, options.scenario, options.network, options.begin, 
-                        options.end, options.interval, options.output, options.summary, options.route_log, 
-                        options.replication, options.percentage, iterate, indx_config, config, city, day)
-                    
-                    if os.path.exists('sumo-launchd.log'):
-                        os.remove('sumo-launchd.log')
-                        
-
 if __name__ == "__main__":
     warnings.simplefilter("ignore")
     main()    

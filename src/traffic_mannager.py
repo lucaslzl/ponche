@@ -12,7 +12,10 @@ CONTEXT_CONFIG = {'0' : {'traffic': 1, 'crimes': 0, 'crashes': 0},
                   '4' : {'traffic': 2, 'crimes': 1, 'crashes': 1},
                   '5' : {'traffic': 1, 'crimes': 2, 'crashes': 1},
                   '6' : {'traffic': 1, 'crimes': 1, 'crashes': 2},
-                  '7' : {'traffic': 1, 'crimes': 1, 'crashes': 1}}
+                  '7' : {'traffic': 5, 'crimes': 1, 'crashes': 1},
+                  '8' : {'traffic': 1, 'crimes': 5, 'crashes': 1},
+                  '9' : {'traffic': 1, 'crimes': 1, 'crashes': 5},
+                  '10' : {'traffic': 1, 'crimes': 1, 'crashes': 1}}
 
 
 def invert_coords(coord):
