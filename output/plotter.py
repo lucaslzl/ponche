@@ -33,15 +33,6 @@ class HarryPlotter:
 			return json.load(file)
 
 
-	'''def mean_confidence_interval(self, data, confidence=0.95):
-		a = 1.0 * np.array(data)
-		n = len(a)
-		m, se = np.mean(a), scipy.stats.sem(a)
-		#h = se * scipy.stats.t.ppf((1 + confidence) / 2., n-1)
-		h = 1.96 * (se/math.sqrt(140))
-		return m, h, m-h, m+h'''
-
-
 	def mean_confidence_interval(self, data, confidence=0.95):
 		a = 1.0 * np.array(data)
 		n = len(a)
@@ -210,9 +201,9 @@ class HarryPlotter:
 		means, stds = self.separate_mean_std(just_to_plot, metric, keys_order)
 		
 		#plt.plot(np.arange(0, 8), means[0:8], 'o-.', color='#1d4484', label='Austin')
-		plt.errorbar(np.arange(0, 10), means[0:10], yerr=stds[0:10], fmt='o-.', color='#1d4484', label='Austin', capsize=5)
+		plt.errorbar(np.arange(0, 11), means[0:11], yerr=stds[0:11], fmt='o-.', color='#1d4484', label='Austin', capsize=5)
 		#plt.plot(np.arange(8, 16), means[8:16], 'o-.', color='#7c0404', label='Chicago')
-		plt.errorbar(np.arange(0, 10), means[10:20], yerr=stds[10:20], fmt='o-.', color='#7c0404', label='Chicago', capsize=5)
+		plt.errorbar(np.arange(0, 11), means[11:22], yerr=stds[11:22], fmt='o-.', color='#7c0404', label='Chicago', capsize=5)
 		
 		plt.xlabel('Execution Configuration')
 		plt.ylabel('{0} ({1})'.format(metric.replace('_', ' ').capitalize(), self.METRIC_UNIT[metric]))
@@ -220,7 +211,7 @@ class HarryPlotter:
 
 		ax.legend()
 
-		plt.savefig('metric_plots/{0}_{1}.pdf'.format(file, metric), bbox_inches="tight", format='pdf')
+		plt.savefig('metric_plots/{0}_{1}.pdf'.format(file.split('.')[0], metric), bbox_inches="tight", format='pdf')
 
 
 	def plot(self, results, file):
@@ -241,7 +232,7 @@ if __name__ == '__main__':
 
 	# calls
 	results = {}
-	'''days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+	days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
 	
 	hp.read_reroute_files(results, days)
 	hp.read_contextual_files(results, days)
@@ -252,7 +243,7 @@ if __name__ == '__main__':
 		results = {}
 		hp.read_reroute_files(results, [day])
 		hp.read_contextual_files(results, [day])
-		hp.save_calculation(results, day)'''
+		hp.save_calculation(results, day)
 
 	results = hp.read_calculation()
 	for res in results:
