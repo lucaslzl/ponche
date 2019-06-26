@@ -203,11 +203,11 @@ class HarryPlotter:
 		#plt.plot(np.arange(0, 8), means[0:8], 'o-.', color='#1d4484', label='Austin')
 		plt.errorbar(np.arange(0, 11), means[0:11], yerr=stds[0:11], fmt='o-.', color='#1d4484', label='Austin', capsize=5)
 		#plt.plot(np.arange(8, 16), means[8:16], 'o-.', color='#7c0404', label='Chicago')
-		plt.errorbar(np.arange(0, 11), means[11:22], yerr=stds[11:22], fmt='o-.', color='#7c0404', label='Chicago', capsize=5)
+		plt.errorbar(np.arange(0, 11), means[11:22], yerr=stds[11:22], fmt='s-.', color='#7c0404', label='Chicago', capsize=5)
 		
-		plt.xlabel('Execution Configuration')
-		plt.ylabel('{0} ({1})'.format(metric.replace('_', ' ').capitalize(), self.METRIC_UNIT[metric]))
-		plt.xticks(np.arange(0, len(xlabels)), xlabels, rotation=50)
+		plt.xlabel('Execution Configuration', fontweight='bold', fontsize=12)
+		plt.ylabel('{0} ({1})'.format(metric.replace('_', ' ').capitalize(), self.METRIC_UNIT[metric]), fontweight='bold', fontsize=12)
+		plt.xticks(np.arange(0, len(xlabels)), xlabels, rotation=50, fontweight='bold', fontsize=12)
 
 		ax.legend()
 
@@ -232,7 +232,7 @@ if __name__ == '__main__':
 
 	# calls
 	results = {}
-	days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+	'''days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
 	
 	hp.read_reroute_files(results, days)
 	hp.read_contextual_files(results, days)
@@ -243,7 +243,7 @@ if __name__ == '__main__':
 		results = {}
 		hp.read_reroute_files(results, [day])
 		hp.read_contextual_files(results, [day])
-		hp.save_calculation(results, day)
+		hp.save_calculation(results, day)'''
 
 	results = hp.read_calculation()
 	for res in results:
