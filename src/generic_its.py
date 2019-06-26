@@ -189,19 +189,21 @@ def main():
 
             for indx_config, config in enumerate(['traffic', 'crimes', 'crashes', 'same', 'mtraffic', 'mcrimes', 'mcrashes', 'maxtraffic', 'maxcrimes', 'maxcrashes', 'baseline']):
 
-                if not os.path.exists('../output/data/{0}/{1}/{2}'.format(day, city, config)):
-                    os.makedirs('../output/data/{0}/{1}/{2}'.format(day, city, config))
+                if config in ['maxtraffic', 'maxcrimes', 'maxcrashes']:
 
-                #for iterate in range(20):
-                processes = [mp.Process(target=parallel_main_loop, args=(city, iterate, config, day, indx_config)) for iterate in range(20)]
+                    if not os.path.exists('../output/data/{0}/{1}/{2}'.format(day, city, config)):
+                        os.makedirs('../output/data/{0}/{1}/{2}'.format(day, city, config))
 
-                # Run processes
-                for p in processes:
-                    p.start()
+                    for i in range(5):
+                        processes = [mp.Process(target=parallel_main_loop, args=(city, iterate, config, day, indx_config)) for iterate in range(4*i, 4*i+4)]
 
-                # Exit the completed processes
-                for p in processes:
-                    p.join()
+                        # Run processes
+                        for p in processes:
+                            p.start()
+
+                        # Exit the completed processes
+                        for p in processes:
+                            p.join()
 
                     
                     

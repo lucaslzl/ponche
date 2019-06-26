@@ -203,16 +203,16 @@ class HarryPlotter:
 		ax = plt.subplot(111)
 
 		cities = ['austin', 'chicago']
-		keys_order = ['traffic', 'crimes', 'crashes', 'same', 'mtraffic', 'mcrimes', 'mcrashes', 'baseline']
+		keys_order = ['traffic', 'crimes', 'crashes', 'same', 'mtraffic', 'mcrimes', 'mcrashes', 'maxtraffic', 'maxcrimes', 'maxcrashes', 'baseline']
 
-		xlabels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'Baseline']
+		xlabels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'Baseline']
 
 		means, stds = self.separate_mean_std(just_to_plot, metric, keys_order)
 		
 		#plt.plot(np.arange(0, 8), means[0:8], 'o-.', color='#1d4484', label='Austin')
-		plt.errorbar(np.arange(0, 8), means[0:8], yerr=stds[0:8], fmt='o-.', color='#1d4484', label='Austin', capsize=5)
+		plt.errorbar(np.arange(0, 10), means[0:10], yerr=stds[0:10], fmt='o-.', color='#1d4484', label='Austin', capsize=5)
 		#plt.plot(np.arange(8, 16), means[8:16], 'o-.', color='#7c0404', label='Chicago')
-		plt.errorbar(np.arange(0, 8), means[8:16], yerr=stds[8:16], fmt='o-.', color='#7c0404', label='Chicago', capsize=5)
+		plt.errorbar(np.arange(0, 10), means[10:20], yerr=stds[10:20], fmt='o-.', color='#7c0404', label='Chicago', capsize=5)
 		
 		plt.xlabel('Execution Configuration')
 		plt.ylabel('{0} ({1})'.format(metric.replace('_', ' ').capitalize(), self.METRIC_UNIT[metric]))
@@ -241,7 +241,7 @@ if __name__ == '__main__':
 
 	# calls
 	results = {}
-	days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+	'''days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
 	
 	hp.read_reroute_files(results, days)
 	hp.read_contextual_files(results, days)
@@ -252,7 +252,7 @@ if __name__ == '__main__':
 		results = {}
 		hp.read_reroute_files(results, [day])
 		hp.read_contextual_files(results, [day])
-		hp.save_calculation(results, day)
+		hp.save_calculation(results, day)'''
 
 	results = hp.read_calculation()
 	for res in results:
