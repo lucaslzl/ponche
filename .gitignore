@@ -10,3 +10,5 @@ timewindow/plots/*
 output/data/*
 
 *.pyc
+
+src/sumo-launchd\.log

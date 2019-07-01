@@ -171,8 +171,8 @@ def parallel_main_loop(city, iterate, config, day, indx_config):
         options.end, options.interval, options.output, options.summary, options.route_log, 
         options.replication, options.percentage, iterate, indx_config, config, city, day)
     
-    if os.path.exists('sumo-launchd.log'):
-        os.remove('sumo-launchd.log')
+    #if os.path.exists('sumo-launchd.log'):
+    #    os.remove('sumo-launchd.log')
         
 def main():
     # Option handling
@@ -188,22 +188,19 @@ def main():
                 os.makedirs('../output/data/{0}/{1}'.format(day, city))
 
             for indx_config, config in enumerate(['traffic', 'crimes', 'crashes', 'same', 'mtraffic', 'mcrimes', 'mcrashes', 'maxtraffic', 'maxcrimes', 'maxcrashes', 'baseline']):
+    
+                if not os.path.exists('../output/data/{0}/{1}/{2}'.format(day, city, config)):
+                    os.makedirs('../output/data/{0}/{1}/{2}'.format(day, city, config))
 
-                if config in ['maxtraffic', 'maxcrimes', 'maxcrashes']:
+                processes = [mp.Process(target=parallel_main_loop, args=(city, iterate, config, day, indx_config)) for iterate in range(20)]
 
-                    if not os.path.exists('../output/data/{0}/{1}/{2}'.format(day, city, config)):
-                        os.makedirs('../output/data/{0}/{1}/{2}'.format(day, city, config))
+                # Run processes
+                for p in processes:
+                    p.start()
 
-                    for i in range(5):
-                        processes = [mp.Process(target=parallel_main_loop, args=(city, iterate, config, day, indx_config)) for iterate in range(4*i, 4*i+4)]
-
-                        # Run processes
-                        for p in processes:
-                            p.start()
-
-                        # Exit the completed processes
-                        for p in processes:
-                            p.join()
+                # Exit the completed processes
+                for p in processes:
+                    p.join()
 
                     
                     
