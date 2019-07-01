@@ -88,10 +88,10 @@ def run(network, begin, end, interval, route_log, replication, p, iterate, indx_
     start_time = time.time()
 
     while step == 1 or traci.simulation.getMinExpectedNumber() > 0:
-        logging.debug("Minimum expected number of vehicles: %d" % traci.simulation.getMinExpectedNumber())
+        #logging.debug("Minimum expected number of vehicles: %d" % traci.simulation.getMinExpectedNumber())
         traci.simulationStep()
 
-        logging.debug("Simulation time %d" % step)
+        #logging.debug("Simulation time %d" % step)
     
         if step >= travel_time_cycle_begin and travel_time_cycle_begin <= end and step%interval == 0:
 
