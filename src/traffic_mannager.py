@@ -81,7 +81,7 @@ def reroute_vehicles(graph, p, error_count, total_count, indx_config, road_map):
 
             shortest_path = None
 
-            if indx_config == 7:
+            if indx_config == 10:
                 indx_source = route.index(source)
                 shortest_path = [1, route[indx_source:]]
             else:
