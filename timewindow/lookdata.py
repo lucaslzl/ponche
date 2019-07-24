@@ -38,16 +38,16 @@ def read_data(day='monday', city='chicago', types='crimes'):
 
 	return remove_invalid_coord(df)
 
-def read_all_data():
+def read_all_data(city='chicago', types='crimes'):
 
 	df = []
 
 	for day in ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']:
 		
 		if len(df) == 0:
-			df = read_data(day)
+			df = read_data(day, city=city, types=types)
 		else:
-			df = pd.concat([df, read_data(day)])
+			df = pd.concat([df, read_data(day, city=city, types=types)])
 
 	return df
 
@@ -93,6 +93,12 @@ def see_density():
 	df.groupby(['month', 'type']).count()['export'].to_csv('density_austin.csv')
 
 
+###############################################################################################################
+
+###############################################################################################################
+
+###############################################################################################################
+
 def colors(n):
 	ret = []
 	for i in range(n):
@@ -126,16 +132,30 @@ def plot_heat(clusters, day, city, types):
 
 def see_distribution():
 
-	city='austin'
+	city='chicago'
 	types='crimes'
 
-	for day in ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']:
-		df = read_data(day, city, types)
-		df = df.drop(['type', 'hour', 'month', 'export'], axis=1)
-		clustering = DBSCAN(eps=0.001, min_samples=3).fit_predict(df)
-		df['cluster'] = clustering
-		plot_heat(df.query('cluster != -1'), day, city, types)
+	# for day in ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']:
+	# 	df = read_data(day, city, types)
+	# 	df = df.drop(['type', 'hour', 'month', 'export'], axis=1)
+	# 	clustering = DBSCAN(eps=0.001, min_samples=3).fit_predict(df)
+	# 	df['cluster'] = clustering
+	# 	plot_heat(df.query('cluster != -1'), day, city, types)
 
+
+	df = read_all_data(city, types)
+	
+	df = df.drop(['type', 'hour', 'month', 'export'], axis=1)
+	clustering = DBSCAN(eps=0.001, min_samples=3).fit_predict(df)
+	df['cluster'] = clustering
+	plot_heat(df.query('cluster != -1'), 'all', city, types)
+
+
+###############################################################################################################
+
+###############################################################################################################
+
+###############################################################################################################
 
 def format_clusters(data):
 
@@ -201,4 +221,5 @@ def see_maps():
 
 
 
-see_maps()
+see_distribution()
+#see_maps()
