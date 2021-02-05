@@ -7,7 +7,7 @@
 
 :airplane: It was published in [IEEE CLOUD 2020](https://conferences.computer.org/cloud/2020/) and the paper :notebook: is available at [PONCHE: Personalized and Context-Aware Vehicle Rerouting Service](https://ieeexplore.ieee.org/document/9284239/)
 
-:blue_car: The goal is propose a Traffic Management System (TMS) that manages traffic by suggesting routes to vehicles. It has three modules being context window identification ([MARTINI](https://github.com/lucaslzl/martini)), context mapping, routing personalization. The novelty comprehends a TMS that suggest routes according to distinct contextual data and user profiles.
+:blue_car: The goal is to propose a Traffic Management System (TMS) that manages traffic by suggesting routes to vehicles. It has three modules being context window identification ([MARTINI](https://github.com/lucaslzl/martini)), context mapping, routing personalization. The novelty comprehends a TMS that suggest routes according to distinct contextual data and user profiles.
 
 ### Requirements
 
